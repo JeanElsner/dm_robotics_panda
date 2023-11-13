@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = ["src"]
+sources = ["src"]
+
+[project]
+name = "dm-robotics-panda"
+description = "Panda model for dm_robotics."
+version = "0.2.5"
+requires-python = ">=3.7"
+authors = [
+    { name = "Jean Elsner", email = "jean.elsner@tum.de" },
+]
+dependencies = [
+  "dm-robotics-moma>=0.6.0",
+  "dm-robotics-controllers>=0.6.0",
+  "panda-python",
+]
+license = {file = "LICENSE"}
+readme = "README.md"
+keywords = ["python", "panda", "robotics", "simulation", "manipulation"]
+
+classifiers = [
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Topic :: Scientific/Engineering",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+]
+
+[project.optional-dependencies]
+
+test = [
+    "pylint",
+    "pylint-exit",
+    "pytest",
+    "pytest-cov",
+    "anybadge",
+]
+
+doc = [
+    "sphinx",
+    "furo",
+    "sphinx_reredirects",
+]
+
+[project.urls]
+homepage = ""
+documentation = ""
+repository = ""

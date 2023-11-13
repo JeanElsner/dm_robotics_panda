@@ -1,0 +1,50 @@
+<mujoco model="panda_hand">
+  <compiler angle="degree" />
+  <asset>
+    <mesh name="link0" file="link0.obj" />
+    <mesh name="link1" file="link1.obj" />
+    <mesh name="link2" file="link2.obj" />
+    <mesh name="link3" file="link3.obj" />
+    <mesh name="link4" file="link4.obj" />
+    <mesh name="link5" file="link5.obj" />
+    <mesh name="link6" file="link6.obj" />
+    <mesh name="link7" file="link7.obj" />
+    <mesh name="hand" file="hand.obj" />
+    <mesh name="finger" file="finger.obj" />
+    <texture name="panda" file="panda.png" type="2d" />
+    <material name="panda" texture="panda" shininess=".4" specular=".4" />
+    <material name="panda_white" rgba="1 1 1 1" shininess="0.4" specular="0.4" />
+  </asset>
+  <equality>
+    <joint name="couple_fingers" joint1="panda_finger_joint1" joint2="panda_finger_joint2" solimp="0.95 0.99 0.001" solref="0.005 1"/>
+  </equality>
+  <worldbody>
+    <body name="panda_hand" euler="0 0 -0.785398163397" gravcomp="1">
+      <site name="TCP" pos="0 0 .1034" />
+      <inertial pos="-1e-02 0 3e-02" mass="7.3e-01" diaginertia="1e-03 2.5e-03 1.7e-03" />
+      <geom type="mesh" material="panda" mesh="hand" />
+      <body name="panda_leftfinger" pos="0 0 0.0584" euler="0 0 180" gravcomp="1">
+        <inertial pos="0 0 0" mass="1.5e-02" diaginertia="2.3749e-06 2.3749e-06 7.5e-07"/>
+        <joint name="panda_finger_joint1" pos="0 0 0" axis="0 1 0" type="slide" limited="true" range="0 0.04" armature="0.1" damping="11" solreflimit="-30000 -200" />
+        <geom type="mesh" material="panda" mesh="finger" contype="0" conaffinity="0" />
+        <geom type="box" name="panda_leftfinger_collision" pos="0 0.015 0.032" size="0.012 0.015 0.022" rgba="1 1 1 .3" group="5"/>
+      </body>
+      <body name="panda_rightfinger" pos="0 0 0.0584" euler="0 0 0" gravcomp="1">
+        <inertial pos="0 0 0" mass="1.5e-02" diaginertia="2.3749e-06 2.3749e-06 7.5e-07"/>
+        <joint name="panda_finger_joint2" pos="0 0 0" axis="0 1 0" type="slide" limited="true" range="0 0.04" armature="0.1" damping="11" solreflimit="-30000 -200" />
+        <geom type="mesh" material="panda" mesh="finger" contype="0" conaffinity="0" />
+        <geom type="box" name="panda_rightfinger_collision" pos="0 0.015 0.032" size="0.012 0.015 0.022" rgba="1 1 1 .3" group="5"/>
+      </body>
+    </body>
+  </worldbody>
+  <tendon>
+    <fixed name="split">
+      <joint joint="panda_finger_joint1" coef="0.5"/>
+      <joint joint="panda_finger_joint2" coef="0.5"/>
+    </fixed>
+  </tendon>
+  <actuator>
+    <!-- Remap original ctrlrange (0, 0.04) to (0, 1): 0.04 * 100 / 1 = 4 -->
+    <general biastype="affine" name="panda_hand_actuator" tendon="split" forcelimited="true" forcerange="-100 100" ctrllimited="true" ctrlrange="0 1" gainprm="4 0 0" biasprm="0 -100 0"/>
+  </actuator>
+</mujoco>

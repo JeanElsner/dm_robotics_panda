@@ -1,0 +1,21 @@
+<mujoco model="arena">
+  <asset>
+    <texture type='skybox' builtin='gradient' rgb1='.4 .6 .8' rgb2='0 0 0' width='100' height='100'/>
+    <texture name='groundplane' type='2d' builtin='checker' rgb1='.2 .3 .4' rgb2='.1 .2 .3' width='300' height='300' mark='edge' markrgb='.8 .8 .8'/>
+    <material name='groundplane' texture='groundplane' texrepeat='5 5' texuniform='true' reflectance='.2'/>
+  </asset>
+
+  <!-- Always initialize the free camera to point at the origin. -->
+  <statistic center='0 0 0'/>
+  <default>
+    <geom solimp="0.9 0.95 0.001 0.5 2" solref="0.005 1" condim="6" />
+  </default>
+  <worldbody>
+    <geom name='ground' type='plane' size='2 2 2' material='groundplane'
+        friction='0.4'/>
+    <light directional='true' diffuse='.7 .7 .7' pos='1 .1 2' dir='0 -.1 -2' specular='.3 .3 .3' castshadow='true'/>
+    <body pos="0.4 0 0.4" >
+      <geom type="box" size=".05 .05 .05"  rgba="1 0 0 1" />
+    </body>
+  </worldbody>
+</mujoco>
