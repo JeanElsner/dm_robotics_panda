@@ -18,6 +18,7 @@ dependencies = [
   "dm-robotics-moma>=0.6.0",
   "dm-robotics-controllers>=0.6.0",
   "panda-python",
+  "pyopengl==3.1.6",
 ]
 license = {file = "LICENSE"}
 readme = "README.md"
