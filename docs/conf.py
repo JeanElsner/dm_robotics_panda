@@ -30,7 +30,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 redirects = {
     # index.rst just contains the table of contents definition.
-    'index': 'dm_robotics_panda.html',
+    'index': 'dm_robotics.panda.html',
 }
 
 # -- Options for HTML output -------------------------------------------------

@@ -4,13 +4,13 @@
    contain the root `toctree` directive.
 
 Welcome to dm-robotics-panda's documentation!
-======================================
+=============================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :hidden:
 
-   modules
+   tutorial
+   dm_robotics.panda
 
 Indices and tables
 ==================
