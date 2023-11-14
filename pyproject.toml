@@ -10,7 +10,7 @@ sources = ["src"]
 name = "dm-robotics-panda"
 description = "Panda model for dm_robotics."
 version = "0.2.5"
-requires-python = ">=3.7"
+requires-python = ">=3.8,<3.11"
 authors = [
     { name = "Jean Elsner", email = "jean.elsner@tum.de" },
 ]
@@ -28,11 +28,9 @@ classifiers = [
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Topic :: Scientific/Engineering",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
 ]
 
 [project.optional-dependencies]
