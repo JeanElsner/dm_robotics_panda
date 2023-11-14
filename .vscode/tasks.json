@@ -1,0 +1,27 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "pytest",
+        "type": "shell",
+        "command": "pytest --cov dm_robotics.panda ./tests/"
+      },
+      {
+        "label": "pylint",
+        "type": "shell",
+        "command": "pylint --rcfile .pylintrc src/"
+      },
+      {
+        "label": "docs-build",
+        "type": "shell",
+        "command": "cd docs && make html"
+      },
+      {
+        "label": "docs-api",
+        "type": "shell",
+        "command": "touch src/dm_robotics/__init__.py && sphinx-apidoc -d 1 -M -T -f -o docs src/dm_robotics && rm src/dm_robotics/__init__.py && rm docs/dm_robotics.rst"
+      }
+    ]
+}
