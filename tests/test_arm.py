@@ -1,5 +1,7 @@
-from dm_robotics.panda import arm
 from dm_control import mjcf
+
+from dm_robotics.panda import arm
+
 
 def test_physics_step():
   robot = arm.Panda()
