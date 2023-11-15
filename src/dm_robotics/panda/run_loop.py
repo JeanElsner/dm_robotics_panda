@@ -23,7 +23,7 @@ from collections import deque
 import numpy as np
 
 
-def run(environment, agent, observers, max_steps, real_time: bool = True):
+def run(environment, agent, observers, max_steps, real_time: bool = False):
   """Runs the agent 'in' the environment.
 
   The loop is:
@@ -60,6 +60,7 @@ def run(environment, agent, observers, max_steps, real_time: bool = True):
     agent: The agent that produced actions.
     observers: A sequence of observers, see the docstring.
     max_steps: The maximum number of time to step the agent.
+    real_time: If True, throttles the loop to run in real-time.
   """
 
   step_count = 0
@@ -74,12 +75,13 @@ def run(environment, agent, observers, max_steps, real_time: bool = True):
 
     # Step until the end of episode (or max_steps hit):
     while not timestep.last() and step_count < max_steps:
+      if real_time:
+        buf.append(time.time() - t)
+        dt = environment.task.control_timestep - np.average(buf)
+        if dt > 0 and real_time:
+          time.sleep(dt)
+        t = time.time()
       # Get an action from the agent:
-      buf.append(time.time() - t)
-      dt = environment.task.control_timestep - np.average(buf)
-      if dt > 0 and real_time:
-        time.sleep(dt)
-      t = time.time()
       action = agent.step(timestep)
       step_count += 1
       _ensure_no_nans(action)
