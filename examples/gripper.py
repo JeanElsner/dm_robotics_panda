@@ -15,8 +15,7 @@ from dm_env import specs
 
 from dm_robotics.panda import env_builder
 from dm_robotics.panda import parameters as params
-from dm_robotics.panda import utils
-from dm_robotics.panda import run_loop
+from dm_robotics.panda import run_loop, utils
 
 
 class Agent:
@@ -64,4 +63,4 @@ if __name__ == '__main__':
       app = utils.ApplicationWithPlot()
       app.launch(env, policy=agent.step)
     else:
-      run_loop.run(env, agent, [], max_steps=1000)
+      run_loop.run(env, agent, [], max_steps=1000, real_time=True)

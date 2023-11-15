@@ -67,4 +67,4 @@ if __name__ == '__main__':
       app = utils.ApplicationWithPlot()
       app.launch(env, policy=agent.step)
     else:
-      run_loop.run(env, agent, [], max_steps=1000)
+      run_loop.run(env, agent, [], max_steps=1000, real_time=True)
