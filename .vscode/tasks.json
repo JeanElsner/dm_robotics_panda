@@ -14,14 +14,14 @@
         "command": "pylint --rcfile .pylintrc src/"
       },
       {
-        "label": "docs-build",
+        "label": "doc-build",
         "type": "shell",
-        "command": "cd docs && make html"
+        "command": "cd doc && make html"
       },
       {
-        "label": "docs-api",
+        "label": "doc-api",
         "type": "shell",
-        "command": "touch src/dm_robotics/__init__.py && sphinx-apidoc -d 1 -M -T -f -o docs src/dm_robotics && rm src/dm_robotics/__init__.py && rm docs/dm_robotics.rst"
+        "command": "touch src/dm_robotics/__init__.py && sphinx-apidoc -d 1 -M -T -f -o doc src/dm_robotics && rm src/dm_robotics/__init__.py && rm doc/dm_robotics.rst"
       }
     ]
 }
