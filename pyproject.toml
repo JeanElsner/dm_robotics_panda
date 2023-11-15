@@ -50,6 +50,6 @@ doc = [
 ]
 
 [project.urls]
-homepage = ""
-documentation = ""
-repository = ""
+homepage = "https://github.com/JeanElsner/dm_robotics_panda"
+documentation = "https://jeanelsner.github.io/dm-robotics-panda/"
+repository = "https://github.com/JeanElsner/dm_robotics_panda"
