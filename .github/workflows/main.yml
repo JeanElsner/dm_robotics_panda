@@ -5,6 +5,11 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  id-token: write
+  pages: write
+
 jobs:
   unittest:
     name: Test on Python ${{ matrix.python-version }}
