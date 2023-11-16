@@ -36,11 +36,13 @@ classifiers = [
 [project.optional-dependencies]
 
 test = [
-    "pylint",
-    "pylint-exit",
     "pytest",
     "pytest-cov",
+]
+
+lint = [
     "anybadge",
+    "pylint",
 ]
 
 doc = [
