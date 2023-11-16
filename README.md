@@ -1,3 +1,7 @@
+<div align="center">
+    <h2><b style="color:red;">Warning: this is a pre-release, API is subject to major changes</b></h2>
+</div>
+
 <div align="center"><img alt="dm_robotics_panda Logo" src="https://raw.githubusercontent.com/JeanElsner/dm_robotics_panda/main/logo.png?token=GHSAT0AAAAAAB4JT3DTYA4QRPHPLIIDLETWZKT2XDQ" /></div>
 
 <h2 align="center">Model and Tools for the Panda Robot in dm_robotics</h2>
