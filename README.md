@@ -33,6 +33,6 @@ Hardware-in-the-loop operation requires `panda-py` to control the robot. However
 For visualization, additional libraries are required, depending on whether hardware acceleration and/or headless mode is required. On Ubuntu 22.04 you can install the respective requirements by running
 * Hardware accelerated rendering in windowed mode `sudo apt-get install libglfw3 libglew2.2`
 * Headless hardware acceleration with recent NVIDIA driver `sudo apt-get install libglew2.2`
-* Software rendering `sudo apt-get libgl1-mesa-glx libosmesa6`
+* Software rendering `sudo apt-get install libgl1-mesa-glx libosmesa6`
 
-Additionally you may need to install glib `sudo apt-get libglib2.0-0`.
+Additionally you may need to install glib `sudo apt-get install libglib2.0-0`.
