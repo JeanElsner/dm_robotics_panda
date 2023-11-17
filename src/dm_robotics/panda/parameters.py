@@ -3,7 +3,8 @@ import dataclasses
 from typing import Callable, Optional, Sequence
 
 from dm_control import composer, mjcf
-from dm_robotics.moma import base_task, effector, entity_initializer, robot
+from dm_robotics.moma import (base_task, effector, entity_initializer, robot,
+                              sensor)
 from dm_robotics.moma.models.arenas import empty
 
 from . import arm_constants
@@ -41,7 +42,7 @@ class RobotParams:
 
 
 @dataclasses.dataclass
-class BuilderExtensions:
+class Extensions:
   """Defines callables to extend the subtask environment builder."""
   build_arena: Optional[Callable[[empty.Arena], None]] = None
   build_robots: Optional[Callable[[Sequence[robot.Robot]], None]] = None
@@ -54,6 +55,8 @@ class BuilderExtensions:
   build_extra_effectors: Optional[
       Callable[[Sequence[robot.Robot], composer.Arena],
                Sequence[effector.Effector]]] = None
+  build_extra_sensors: Optional[Callable[
+      [Sequence[robot.Robot], composer.Arena], Sequence[sensor.Sensor]]] = None
 
 
 @dataclasses.dataclass
@@ -61,8 +64,10 @@ class EnvirontmentParameters:
   """Task-level parameters.
 
   Args:
-    arena: MJCF model describing the environment/arena. A copy
-      of this will be included in `dm_robotics.moma.models.arenas.empty.Arena`.
+    mjcf_root: MJCF model of the scene. The Panda robots will be added
+      by :py:class:`dm_robotics.panda.env_builder.PandaEnvironmentBuilder`-
+    arena: Reinforcement learning environment.
     control_timestep: Timestep size of the controlling agent."""
-  arena: Optional[mjcf.RootElement] = None
+  mjcf_root: Optional[mjcf.RootElement] = None
+  arena: Optional[composer.Environment] = None
   control_timestep: float = 0.1
