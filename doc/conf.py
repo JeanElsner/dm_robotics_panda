@@ -15,6 +15,7 @@ release = '0.3.0'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    'sphinxcontrib.youtube',
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
@@ -37,5 +38,5 @@ redirects = {
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'furo'
-html_logo = '../logo.png'
+html_logo = './img/logo.png'
 html_static_path = ['_static']

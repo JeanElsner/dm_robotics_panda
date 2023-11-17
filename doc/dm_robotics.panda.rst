@@ -9,74 +9,15 @@ dm\_robotics.panda package
 Submodules
 ----------
 
-dm\_robotics.panda.arm module
------------------------------
+.. toctree::
+   :maxdepth: 1
 
-.. automodule:: dm_robotics.panda.arm
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dm\_robotics.panda.arm\_constants module
-----------------------------------------
-
-.. automodule:: dm_robotics.panda.arm_constants
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dm\_robotics.panda.env\_builder module
---------------------------------------
-
-.. automodule:: dm_robotics.panda.env_builder
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dm\_robotics.panda.gripper module
----------------------------------
-
-.. automodule:: dm_robotics.panda.gripper
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dm\_robotics.panda.gripper\_constants module
---------------------------------------------
-
-.. automodule:: dm_robotics.panda.gripper_constants
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dm\_robotics.panda.hardware module
-----------------------------------
-
-.. automodule:: dm_robotics.panda.hardware
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dm\_robotics.panda.parameters module
-------------------------------------
-
-.. automodule:: dm_robotics.panda.parameters
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dm\_robotics.panda.run\_loop module
------------------------------------
-
-.. automodule:: dm_robotics.panda.run_loop
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dm\_robotics.panda.utils module
--------------------------------
-
-.. automodule:: dm_robotics.panda.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   dm_robotics.panda.arm
+   dm_robotics.panda.arm_constants
+   dm_robotics.panda.environment
+   dm_robotics.panda.gripper
+   dm_robotics.panda.gripper_constants
+   dm_robotics.panda.hardware
+   dm_robotics.panda.parameters
+   dm_robotics.panda.run_loop
+   dm_robotics.panda.utils

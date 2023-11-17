@@ -49,6 +49,7 @@ doc = [
     "sphinx",
     "furo",
     "sphinx_reredirects",
+    "sphinxcontrib.youtube",
 ]
 
 [project.urls]
