@@ -17,6 +17,16 @@
 
 This package includes a model of the Panda robot for [dm_robotics](https://github.com/google-deepmind/dm_robotics), tools to build simulation environments suited for reinforcement learning, and allows you to run these simulations with real hardware in the loop. 
 
+<div align="center">
+  <img alt="Hardware in the loop operation." src="https://raw.githubusercontent.com/JeanElsner/dm_robotics_panda/main/.github/img/hil_mode.gif" />
+  <p>Run your <code>dm_robotics</code> simulation environment on the real hardware without modification.</p>
+</div>
+
+<div align="center">
+  <img alt="Haptic interaction mode." src="https://raw.githubusercontent.com/JeanElsner/dm_robotics_panda/main/.github/img/haptic_mode.gif" />
+  <p>Haptic interaction mode allows you to physically interact with the simulation environment.</p>
+</div>
+
 ## Install
 The recommended way of installing is using PyPI:
 ```
