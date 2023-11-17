@@ -46,8 +46,8 @@ if __name__ == '__main__':
   parser = utils.default_arg_parser()
   args = parser.parse_args()
 
-  # The Panda model and environment support many customization
-  # parameters. Here we use only the defaults and robot IP if provided.
+  # Use RobotParams to customize Panda robots added to the environment.
+  # We use robot_ip for hardware-in-the-loop operation.
   robot_params = params.RobotParams(robot_ip=args.robot_ip)
   panda_env = environment.PandaEnvironment(robot_params)
 

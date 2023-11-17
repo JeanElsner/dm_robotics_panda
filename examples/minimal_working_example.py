@@ -30,8 +30,7 @@ if __name__ == '__main__':
   parser = utils.default_arg_parser()
   args = parser.parse_args()
 
-  # The MoMa model and environment support many customization
-  # parameters. Here we use only the defaults.
+  # Use RobotParams to customize Panda robots added to the environment.
   robot_params = params.RobotParams(robot_ip=args.robot_ip)
   panda_env = environment.PandaEnvironment(robot_params)
 

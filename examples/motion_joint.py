@@ -36,8 +36,8 @@ if __name__ == '__main__':
   parser = utils.default_arg_parser()
   args = parser.parse_args()
 
-  # The Panda model and environment support many customization
-  # parameters. Here we use only the robot IP if provided and set
+  # Use RobotParams to customize Panda robots added to the environment.
+  # We use robot_ip for hardware-in-the-loop operation and set
   # the actuation mode to joint velocities.
   robot_params = params.RobotParams(
       robot_ip=args.robot_ip, actuation=arm_constants.Actuation.JOINT_VELOCITY)
