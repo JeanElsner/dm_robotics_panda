@@ -8,10 +8,10 @@ import os
 
 import dm_env
 import numpy as np
-from dm_control import mjcf
+from dm_control import composer, mjcf
 from dm_env import specs
 
-from dm_robotics.panda import arm_constants, env_builder
+from dm_robotics.panda import arm_constants, environment
 from dm_robotics.panda import parameters as params
 from dm_robotics.panda import utils
 
@@ -41,20 +41,16 @@ if __name__ == '__main__':
 
   # Load environment from an MJCF file.
   XML_PATH = os.path.join(os.path.dirname(__file__), 'assets', 'haptics.xml')
-  arena = mjcf.from_file(XML_PATH)
+  arena = composer.Arena(xml_path=XML_PATH)
 
   # Robot parameters include the robot's IP for HIL,
   # haptic actuation mode and joint damping.
   robot_params = params.RobotParams(robot_ip=args.robot_ip,
                                     actuation=arm_constants.Actuation.HAPTIC,
                                     joint_damping=np.zeros(7))
-  # Environment parameters consist of the MJCF element defined above
-  # as arena and a higher control timestep for smooth interaction.
-  env_params = params.EnvirontmentParameters(arena=arena, control_timestep=0.01)
-  panda_env_builder = env_builder.PandaEnvironmentBuilder(robot_params,
-                                                          env_params=env_params)
+  panda_env = environment.PandaEnvironment(robot_params, arena, 0.01)
 
-  with panda_env_builder.build_task_environment() as env:
+  with panda_env.build_task_environment() as env:
     # Print the full action, observation and reward specification.
     utils.full_spec(env)
     # Initialize the agent.

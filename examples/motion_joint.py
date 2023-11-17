@@ -5,7 +5,7 @@ import dm_env
 import numpy as np
 from dm_env import specs
 
-from dm_robotics.panda import arm_constants, env_builder
+from dm_robotics.panda import arm_constants, environment
 from dm_robotics.panda import parameters as params
 from dm_robotics.panda import run_loop, utils
 
@@ -41,9 +41,9 @@ if __name__ == '__main__':
   # the actuation mode to joint velocities.
   robot_params = params.RobotParams(
       robot_ip=args.robot_ip, actuation=arm_constants.Actuation.JOINT_VELOCITY)
-  panda_env_builder = env_builder.PandaEnvironmentBuilder(robot_params)
+  panda_env = environment.PandaEnvironment(robot_params)
 
-  with panda_env_builder.build_task_environment() as env:
+  with panda_env.build_task_environment() as env:
     # Print the full action, observation and reward specification.
     utils.full_spec(env)
     # Initialize the agent.

@@ -3,10 +3,10 @@ import os
 
 import dm_env
 import numpy as np
-from dm_control import mjcf
+from dm_control import composer, mjcf
 from dm_env import specs
 
-from dm_robotics.panda import env_builder
+from dm_robotics.panda import environment
 from dm_robotics.panda import parameters as params
 from dm_robotics.panda import run_loop, utils
 
@@ -39,10 +39,10 @@ if __name__ == '__main__':
   # The environment includes a simple robot frame and
   # reference frame for our two-arm robot.
   XML_PATH = os.path.join(os.path.dirname(__file__), 'assets', 'two_arm.xml')
-  arena = mjcf.from_file(XML_PATH)
-  left_frame = arena.find('site', 'left')
-  right_frame = arena.find('site', 'right')
-  control_frame = arena.find('site', 'control')
+  arena = composer.Arena(xml_path=XML_PATH)
+  left_frame = arena.mjcf_model.find('site', 'left')
+  right_frame = arena.mjcf_model.find('site', 'right')
+  control_frame = arena.mjcf_model.find('site', 'control')
 
   # We use the sites defined in the MJCF to attach the robot arms
   # to the body. The robot's control site is used as a reference frame
@@ -53,11 +53,10 @@ if __name__ == '__main__':
   right = params.RobotParams(attach_site=right_frame,
                              name='right',
                              control_frame=control_frame)
-  env_params = params.EnvirontmentParameters(arena=arena)
-  panda_env_builder = env_builder.PandaEnvironmentBuilder([left, right],
-                                                          env_params)
+  env_params = params.EnvirontmentParameters(mjcf_root=arena)
+  panda_env = environment.PandaEnvironment([left, right], arena)
 
-  with panda_env_builder.build_task_environment() as env:
+  with panda_env.build_task_environment() as env:
     # Print the full action, observation and reward specification
     utils.full_spec(env)
     # Initialize the agent
