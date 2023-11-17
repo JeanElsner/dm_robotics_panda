@@ -3,7 +3,7 @@ import dm_env
 import numpy as np
 from dm_env import specs
 
-from dm_robotics.panda import env_builder
+from dm_robotics.panda import environment
 from dm_robotics.panda import parameters as params
 from dm_robotics.panda import run_loop, utils
 
@@ -38,10 +38,9 @@ if __name__ == '__main__':
                                pose=[.5, -.5, 0, 0, 0, np.pi * 3 / 4])
   robot_3 = params.RobotParams(name='robot_3',
                                pose=[.5, .5, 0, 0, 0, np.pi * 5 / 4])
-  panda_env_builder = env_builder.PandaEnvironmentBuilder(
-      [robot_1, robot_2, robot_3])
+  panda_env = environment.PandaEnvironment([robot_1, robot_2, robot_3])
 
-  with panda_env_builder.build_task_environment() as env:
+  with panda_env.build_task_environment() as env:
     # Print the full action, observation and reward specification
     utils.full_spec(env)
     # Initialize the agent

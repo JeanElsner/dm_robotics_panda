@@ -56,7 +56,16 @@ _PANDA_ACTUATOR_PARAMS[consts.Actuation.HAPTIC] = _PANDA_ACTUATOR_PARAMS[
 
 
 class Panda(robot_arm.RobotArm):
-  """A class representing a Panda robot arm."""
+  """A class representing a Panda robot arm.
+
+  Args:
+    name: The name of this robot. Used as a prefix in the MJCF name
+      attributes.
+    actuation: Instance of :py:class:`dm_robotics.panda.arm_constants.Actuation`
+      specifying which actuation mode to use.
+    use_rotated_gripper: If True, mounts the gripper in a rotated position to
+      match the real placement of the gripper on the physical Panda.
+  """
 
   # Define member variables that are created in the _build function. This is to
   # comply with pytype correctly.
@@ -74,16 +83,6 @@ class Panda(robot_arm.RobotArm):
              actuation: consts.Actuation = consts.Actuation.CARTESIAN_VELOCITY,
              use_rotated_gripper: bool = True,
              hardware=None) -> None:
-    """Initializes Panda.
-
-    Args:
-      name: The name of this robot. Used as a prefix in the MJCF name
-        attributes.
-      actuation: Instance of `consts.Actuation` specifying which
-        actuation mode to use.
-      use_rotated_gripper: If True, mounts the gripper in a rotated position to
-        match the real placement of the gripper on the physical Panda.
-    """
     self.hardware = hardware
     self._mjcf_root = mjcf.from_path(consts.XML_PATH)
     self._mjcf_root.model = name
@@ -96,14 +95,6 @@ class Panda(robot_arm.RobotArm):
                          random_state: np.random.RandomState):
     """Function called at the beginning of every episode."""
     del random_state  # Unused.
-
-    # Apply gravity compensation
-    # body_elements = self.mjcf_model.find_all('body')
-    # gravity = np.hstack([physics.model.opt.gravity, [0, 0, 0]])
-    # physics_bodies = physics.bind(body_elements)
-    # if physics_bodies is None:
-    #   raise ValueError('Calling physics.bind with bodies returns None.')
-    # physics_bodies.xfrc_applied[:] = -gravity * physics_bodies.mass[..., None]
 
   @property
   def joints(self) -> List[types.MjcfElement]:
@@ -184,16 +175,6 @@ class Panda(robot_arm.RobotArm):
 
   def after_substep(self, physics: mjcf.Physics,
                     random_state: np.random.RandomState) -> None:
-    """A callback which is executed after a simulation step.
-
-    This function is necessary when using the integrated velocity mujoco
-    actuator. Mujoco will limit the incoming velocity but the hidden state of
-    the integrated velocity actuators must be clipped to the actuation range.
-
-    Args:
-      physics: An instance of `mjcf.Physics`.
-      random_state: An instance of `np.random.RandomState`.
-    """
     del random_state  # Unused.
 
     # Clip the actuator.act with the actuator limits.
@@ -206,7 +187,6 @@ class Panda(robot_arm.RobotArm):
                                          a_max=consts.JOINT_LIMITS['max'])
 
   def _add_mjcf_elements(self, use_rotated_gripper: bool):
-    """Defines the arms MJCF joints and sensors."""
     self._joints = [
         self._mjcf_root.find('joint', j) for j in consts.JOINT_NAMES
     ]
@@ -232,7 +212,6 @@ class Panda(robot_arm.RobotArm):
       self._attachment_site = self._wrist_site
 
   def _add_actuators(self):
-    """Adds the Mujoco actuators to the robot arm."""
     if self._actuation not in consts.Actuation:
       raise ValueError((f'Actuation {self._actuation} is not a valid actuation.'
                         'Please specify one of '
@@ -246,14 +225,6 @@ class Panda(robot_arm.RobotArm):
       self._add_mjcf_actuators(dyntype='none')
 
   def _add_mjcf_actuators(self, dyntype: str = 'integrator') -> None:
-    """Adds integrated velocity actuators to the mjcf model.
-
-    This function adds integrated velocity actuators and default class
-    attributes to the mjcf model according to the values in `sawyer_constants`,
-    `_SAWYER_ACTUATOR_PARAMS` and `_INTEGRATED_VELOCITY_DEFAULT_DCLASS`.
-    `self._actuators` is created to contain the list of actuators created.
-    """
-
     # Construct list of ctrlrange tuples from act limits and actuation mode.
     ctrl_ranges = list(
         zip(consts.ACTUATION_LIMITS[self._actuation]['min'],
@@ -392,9 +363,10 @@ class Cartesian6dVelocityEffector(
 
 
 class ArmEffector(arm_effector.ArmEffector):
-  """Robot arm effector for the Panda MoMa model that takes `parameters.RobotParams`
+  """Robot arm effector for the Panda MoMa model that takes
+  :py:class:`dm_robotics.panda.parameters.RobotParams`
   and changes the joint stiffness and damping of the robot arm. Otherwise behaves
-  likes `dm_robotics.moma.effectors.arm_effector.ArmEffector`."""
+  likes :py:class:`dm_robotics.moma.effectors.arm_effector.ArmEffector`."""
 
   def __init__(self, robot_params: params.RobotParams, arm: robot_arm.RobotArm):
     """
@@ -481,6 +453,20 @@ class WrenchEffector(ArmEffector):
     return torque.astype(np.float32)
 
 
+@enum.unique
+class ControlObservations(enum.Enum):
+  """Observations exposed by this sensor in control frame."""
+  POS = '{}_pos_control'
+  QUAT = '{}_quat_control'
+  POSE = '{}_pose_control'
+  RMAT = '{}_rmat_control'
+  VEL = '{}_vel_control'
+
+  def get_obs_key(self, name: str) -> str:
+    """Returns the key to the observation in the observables dict."""
+    return self.value.format(name)
+
+
 class RobotTCPSensor(site_sensor.SiteSensor):
   """Version of `dm_robotics.moma.sensors.site_sensor.SiteSensor` that
     takes tool center point pose measurements of a gripper and accepts
@@ -497,30 +483,38 @@ class RobotTCPSensor(site_sensor.SiteSensor):
           as reference frame. Falls back to world frame if `None`."""
     super().__init__(gripper.tool_center_point, f'{robot_params.name}_tcp')
     self._frame = robot_params.control_frame
+    self._observables.update({
+        self.get_obs_key(ControlObservations.POS):
+            observable.Generic(self._pos_control),
+        self.get_obs_key(ControlObservations.QUAT):
+            observable.Generic(self._quat_control),
+        self.get_obs_key(ControlObservations.RMAT):
+            observable.Generic(self._rmat_control),
+        self.get_obs_key(ControlObservations.POSE):
+            observable.Generic(self._pose_control),
+        self.get_obs_key(ControlObservations.VEL):
+            observable.Generic(self._vel_control),
+    })
+    for obs in self._observables.values():
+      obs.enabled = True
 
-  def _site_pos(self, physics: mjcf.Physics) -> np.ndarray:
-    return self._site_pose(physics)[:3]
+  def _pos_control(self, physics: mjcf.Physics) -> np.ndarray:
+    return self._pose_control(physics)[:3]
 
-  def _site_quat(self, physics: mjcf.Physics) -> np.ndarray:
-    return self._site_pose(physics)[3:]
+  def _quat_control(self, physics: mjcf.Physics) -> np.ndarray:
+    return self._pose_control(physics)[3:]
 
-  def _site_pose(self, physics: mjcf.Physics) -> np.ndarray:
+  def _pose_control(self, physics: mjcf.Physics) -> np.ndarray:
     pos = physics.bind(self._site).xpos
     quat = tr.mat_to_quat(np.reshape(physics.bind(self._site).xmat, [3, 3]))
     quat = tr.positive_leading_quat(quat)
     return geometry.PoseStamped(geometry.Pose(pos, quat)).get_relative_pose(
         self._frame, mujoco_physics.wrap(physics)).to_posquat()
-    # return geometry.PoseStamped(tr.pos_quat_to_hmat(
-    #     pos,
-    #     quat)).get_relative_pose(self._frame,
-    #                              mujoco_physics.wrap(physics)).to_posquat()
-    # return geometry.PoseStamped(tr.pos_quat_to_hmat(pos, quat)).to_frame(
-    #     self._frame, mujoco_physics.wrap(physics)).pose.to_posquat()
 
-  def _site_rmat(self, physics: mjcf.Physics) -> np.ndarray:
-    return tr.quat_to_mat(self._site_quat(physics))[:3, :3].reshape((-1,))
+  def _rmat_control(self, physics: mjcf.Physics) -> np.ndarray:
+    return tr.quat_to_mat(self._quat_control(physics))[:3, :3].reshape((-1,))
 
-  def _site_vel_world(self, physics: mjcf.Physics) -> np.ndarray:
+  def _vel_control(self, physics: mjcf.Physics) -> np.ndarray:
     return geometry.TwistStamped(super()._site_vel_world(physics),
                                  None).get_relative_twist(
                                      self._frame,

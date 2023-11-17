@@ -21,7 +21,7 @@
       {
         "label": "doc-api",
         "type": "shell",
-        "command": "touch src/dm_robotics/__init__.py && sphinx-apidoc -d 1 -M -T -f -o doc src/dm_robotics && rm src/dm_robotics/__init__.py && rm doc/dm_robotics.rst"
+        "command": "touch src/dm_robotics/__init__.py && sphinx-apidoc -e -d 1 -M -T -f -o doc src/dm_robotics && rm src/dm_robotics/__init__.py && rm doc/dm_robotics.rst"
       }
     ]
 }

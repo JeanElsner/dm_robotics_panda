@@ -1,0 +1,21 @@
+{   
+    "editor.tabSize": 2,
+
+    "pylint.args": [
+        "--rcfile=.pylintrc"
+    ],
+
+    "yapf.args": [
+        "--style",
+        "{based_on_style: google, indent_width: 2}"
+    ],
+
+    "[python]": {
+        "editor.formatOnSaveMode": "file",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "eeyore.yapf",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        },
+    },
+}
