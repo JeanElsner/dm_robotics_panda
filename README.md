@@ -1,7 +1,3 @@
-<div align="center">
-    <h2><b style="color:red;">Warning: this is a pre-release, API is subject to major changes</b></h2>
-</div>
-
 <div align="center"><img alt="dm_robotics_panda Logo" src="https://raw.githubusercontent.com/JeanElsner/dm_robotics_panda/main/.github/img/logo.png" /></div>
 
 <h2 align="center">Model and Tools for the Panda Robot in dm_robotics</h2>
@@ -27,7 +23,7 @@ This package includes a model of the Panda robot for [dm_robotics](https://githu
   <p>Haptic interaction mode allows you to physically interact with the simulation environment.</p>
 </div>
 
-To get started, checkout the [tutorials](https://jeanelsner.github.io/dm_robotics_panda/tutorial.html).
+To get started, checkout the [tutorial](https://jeanelsner.github.io/dm_robotics_panda/tutorial.html).
 
 ## Install
 The recommended way of installing is using PyPI:
