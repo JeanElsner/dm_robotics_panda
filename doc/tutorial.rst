@@ -123,6 +123,61 @@ running with HIL and the visualizaiton app.
 Cartesian
 ^^^^^^^^^
 
+Cartesian velocity control is the default behavior but can also be configured explicitly
+as part of a robot's configuration.
+
+.. code:: python
+
+   robot_params = params.RobotParams(actuation=arm_constants.Actuation.CARTESIAN_VELOCITY)
+
+The effector's (controller's) action space consists of a 6-vector where the first three indices
+correspond to the desired end-effector velocity along the control frame's x-, y-, and z-axis. The
+latter three indices define the angular velocities respectively. If no control frame is configured,
+the world frame is used as a reference.
+
+.. todo::
+
+   Refer to a section explaining control frames and their use in detail.
+
+
+.. code:: python
+
+   class Agent:
+     """
+     The agent produces a trajectory tracing the path of an eight
+     in the x/y control frame of the robot using end-effector velocities.
+     """
+
+     def __init__(self, spec: specs.BoundedArray) -> None:
+       self._spec = spec
+
+     def step(self, timestep: dm_env.TimeStep) -> np.ndarray:
+       """
+       Computes velocities in the x/y plane parameterized in time.
+       """
+       time = timestep.observation['time'][0]
+       r = 0.1
+       vel_x = r * math.cos(time)  # Derivative of x = sin(t)
+       vel_y = r * ((math.cos(time) * math.cos(time)) -
+                   (math.sin(time) * math.sin(time)))
+       action = np.zeros(shape=self._spec.shape, dtype=self._spec.dtype)
+       # The action space of the Cartesian 6D effector corresponds
+       # to the linear and angular velocities in x, y and z directions
+       # respectively
+       action[0] = vel_x
+       action[1] = vel_y
+       return action
+
+This agent computes velocities parameterized in simulation time to produce a path
+that roughly traces the shape of an eight in the x/y plane.
+Note that this agent does not implement a trajectory follower but rather applies
+end-effector velocities in an open loop manner. As such the path may drift over time.
+In practice we would expect more sophisticated (learned) agents to take the current
+observation (state) into account.
+
+The video below demonstrates the example implemented in ``examples/motion_cartesian.py``
+with HIL and visualization.
+
 .. youtube:: vYvdr7iGCv4
 
 

@@ -15,7 +15,7 @@ from dm_robotics.panda import run_loop, utils
 class Agent:
   """
   The agent produces a trajectory tracing the path of an eight
-  in the x/y frame of the robot using end-effector velocities.
+  in the x/y control frame of the robot using end-effector velocities.
   """
 
   def __init__(self, spec: specs.BoundedArray) -> None:
