@@ -59,8 +59,64 @@ The shape of the action will depend on the number of configured robots and chose
 Motion Control
 --------------
 
+By default the robots use a Cartesian velocity motion
+`controller <https://github.com/google-deepmind/dm_robotics/blob/main/cpp/controllers/README.md>`_
+from ``dm_robotics`` that uses quadratic programming to solve a stack-of-tasks optimization problem.
+The actuation mode is configured as part of the robot parameters as defined in
+:py:class:`dm_robotics.panda.arm_constants.Actuation`.
+The motion of the Panda robot is controlled through the agent interface.
+Agents need to provide a ``step()`` function that accepts a ``dm_env`` timestep and returns
+an action (control signal) in the form of a NumPy array.
+ 
+
+.. note::
+    The examples in this section support optional hardware in the loop (HIL) mode. You can run the examples
+    with HIL by executing the files with the ``--robot-ip`` option set to the hostname or IP address
+    of a robot connected to the host computer. This option can be combined with ``--gui`` for visualization.
+
+    When running any of the examples
+    the action specification (shape) of the configured actuation mode along with the observation
+    and reward specification will be printed in the terminal for convenience.
+
 Joint
 ^^^^^
+
+Joint velocity control is activated as part of the robot configuration.
+
+.. code:: python
+
+   robot_params = params.RobotParams(actuation=arm_constants.Actuation.JOINT_VELOCITY)
+
+The action interface is a 7-vector where each component controls the corresponding joint's velocity.
+If the Panda gripper is used (default behavior) there is one editional component to control grasping.
+
+.. code:: python
+
+   class Agent:
+   """
+   This agent produces a sinusoidal joint movement.
+   """
+
+     def __init__(self, spec: specs.BoundedArray) -> None:
+       self._spec = spec
+
+     def step(self, timestep: dm_env.TimeStep) -> np.ndarray:
+       """
+       Computes sinusoidal joint velocities.
+       """
+       time = timestep.observation['time'][0]
+       action = 0.1 * np.sin(
+           np.ones(shape=self._spec.shape, dtype=self._spec.dtype) * time)
+       action[7] = 0  # gripper action
+       return action
+
+
+   agent = Agent(env.action_spec())
+
+Where ``env.action_spec()`` is the MoMa subtask environment returned by ``build_task_environment()``
+that is used to retrieve the environment's action specification. This example will result in a small
+periodic motion and is implemented in ``examples/motion_joint.py``. See below for a video of the example
+running with HIL and the visualizaiton app.
 
 .. youtube:: C14HlT1Scdo
 
