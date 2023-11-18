@@ -40,7 +40,7 @@ Hardware-in-the-loop operation requires `panda-py` to control the robot. However
 
 If you're having trouble running the included viewer or rendering scenes, please refer to the requirements of [dm_control](https://github.com/google-deepmind/dm_control#rendering).
 
-# Citation
+## Citation
 
 If you use dm_robotics_panda in published research, please consider citing the [original software paper](https://www.sciencedirect.com/science/article/pii/S2352711023002285).
 
