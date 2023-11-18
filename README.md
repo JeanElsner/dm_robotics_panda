@@ -39,3 +39,21 @@ in the repository's root directory.
 Hardware-in-the-loop operation requires `panda-py` to control the robot. However, the version automatically installed from PyPI may not be compatible with your robot if you use an older firmware or use the new Franka Research 3 robot. In that case refer to the panda-py [instructions](https://github.com/JeanElsner/panda-py#libfranka-version) on what version to install and where to find it.
 
 If you're having trouble running the included viewer or rendering scenes, please refer to the requirements of [dm_control](https://github.com/google-deepmind/dm_control#rendering).
+
+# Citation
+
+If you use dm_robotics_panda in published research, please consider citing the [original software paper](https://www.sciencedirect.com/science/article/pii/S2352711023002285).
+
+```
+@article{elsner2023taming,
+title = {Taming the Panda with Python: A powerful duo for seamless robotics programming and integration},
+journal = {SoftwareX},
+volume = {24},
+pages = {101532},
+year = {2023},
+issn = {2352-7110},
+doi = {https://doi.org/10.1016/j.softx.2023.101532},
+url = {https://www.sciencedirect.com/science/article/pii/S2352711023002285},
+author = {Jean Elsner}
+}
+```
