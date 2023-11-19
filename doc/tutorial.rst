@@ -184,6 +184,47 @@ with HIL and visualization.
 Gripper
 ^^^^^^^
 
+The Panda's gripper (officially called the Franka Hand) is not easy to model as it doesn't feature a
+real-time control interface and is affected by hysteresis. Because of this, the gripper's MoMa effector
+features only a binary action space, allowing for an outward and an inner grasp corresponding to action
+values 0 and 1 respectively. Internally the gripper's effector maps actions to 0 if < 0.5 and 1 otherwise.
+The gripper is attached by default, however this behavior can be deactivated or explicitly set in the
+robot configuration.
+
+.. code:: python
+
+   robot_params = params.RobotParams(has_hand=True)
+
+The example implemented in ``examples/gripper.py`` includes a simple agent that generates random actions
+to illustrate the gripper's behavior.
+
+.. code:: python
+
+   class Agent:
+     """
+     This agent controls the gripper with random actions.
+     """
+
+     def __init__(self, spec: specs.BoundedArray) -> None:
+       self._spec = spec
+
+     def step(self, timestep: dm_env.TimeStep) -> np.ndarray:
+       """
+       Every timestep, a new random gripper action is generated
+       that would result in either an outward or inward grasp.
+       However, the gripper only moves if 1) it is not already moving
+       and 2) the new command is different from the last.
+       Therefore this agent will effectively result in continuously
+       opening and closing the gripper as quickly as possible.
+       """
+       del timestep
+       action = np.zeros(shape=self._spec.shape, dtype=self._spec.dtype)
+       action[6] = np.random.rand()
+       return action
+
+Note how, in the video below, the grasp adapts to the size of an object placed between
+the gripper's fingers. This can also be observed in the gripper's width observation plot.
+
 .. youtube:: h3P0HBPF3NU
 
 
