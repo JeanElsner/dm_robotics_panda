@@ -98,7 +98,8 @@ class PandaEnvironment:
   def add_props(self, props: Sequence[prop.Prop]):
     self._props.extend(props)
     for p in self._props:
-      self._arena.add_free_entity(p)
+      frame = self._arena.add_free_entity(p)
+      p.set_freejoint(frame.freejoint)
 
   def add_entity_initializers(
       self,
