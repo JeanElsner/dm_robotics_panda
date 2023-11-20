@@ -231,14 +231,59 @@ the gripper's fingers. This can also be observed in the gripper's width observat
 Haptic Interaction
 ------------------
 
+.. code:: python
+
+   robot_params = params.RobotParams(robot_ip=args.robot_ip,
+                                     actuation=arm_constants.Actuation.HAPTIC,
+                                     joint_damping=np.zeros(7))
+   panda_env = environment.PandaEnvironment(robot_params, arena, 0.01)
+
 .. youtube:: hn42udf0uKc
 
 
 Multiple Robots
 ---------------
 
-Rewards and Observations
-------------------------
+``examples/multiple_robots.py``
+
+.. code:: python
+
+   robot_1 = params.RobotParams(name='robot_1', pose=[0, 0, 0, 0, 0, 0])
+   robot_2 = params.RobotParams(name='robot_2',
+                                pose=[.5, -.5, 0, 0, 0, np.pi * 3 / 4])
+   robot_3 = params.RobotParams(name='robot_3',
+                                pose=[.5, .5, 0, 0, 0, np.pi * 5 / 4])
+   panda_env = environment.PandaEnvironment([robot_1, robot_2, robot_3])
+
+.. image:: img/multiple_robots.png
+   :alt: Multiple Robots
+
+``examples/two_arm_robot.py``
+
+.. code:: python
+
+   XML_PATH = os.path.join(os.path.dirname(__file__), 'assets', 'two_arm.xml')
+   arena = composer.Arena(xml_path=XML_PATH)
+   left_frame = arena.mjcf_model.find('site', 'left')
+   right_frame = arena.mjcf_model.find('site', 'right')
+   control_frame = arena.mjcf_model.find('site', 'control')
+
+.. code:: python
+
+   left = params.RobotParams(attach_site=left_frame,
+                             name='left',
+                             control_frame=control_frame)
+   right = params.RobotParams(attach_site=right_frame,
+                              name='right',
+                              control_frame=control_frame)
+   env_params = params.EnvirontmentParameters(mjcf_root=arena)
+   panda_env = environment.PandaEnvironment([left, right], arena)
+
+.. youtube:: cAUjkhrBmN4
+
+Reward and Observation
+----------------------
+
 
 Domain Randomization
 --------------------
