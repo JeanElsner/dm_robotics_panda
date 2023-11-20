@@ -153,9 +153,7 @@ class TimeSensor(sensor.Sensor):
 
 class Plot(renderer.Component):
 
-  def __init__(self,
-               runtime: runtime_module.Runtime,
-               maxlen: int = 500) -> None:
+  def __init__(self, runtime: runtime_module.Runtime, maxlen: int) -> None:
     self._rt = runtime
     self.maxlen = min(maxlen, mujoco.mjMAXLINEPNT)
     self.maxlines = 0
@@ -183,7 +181,7 @@ class ObservationPlot(Plot):
 
   def __init__(self,
                runtime: runtime_module.Runtime,
-               maxlen: int = 1000) -> None:
+               maxlen: int = 500) -> None:
     super().__init__(runtime, maxlen)
     self._obs_idx = None
     self._obs_keys = None
@@ -240,7 +238,7 @@ class ActionPlot(Plot):
 
   def __init__(self,
                runtime: runtime_module.Runtime,
-               maxlen: int = 1000) -> None:
+               maxlen: int = 500) -> None:
     super().__init__(runtime, maxlen)
     self._init_buffer()
     self.fig.title = 'Actions'
@@ -272,7 +270,7 @@ class RewardPlot(Plot):
 
   def __init__(self,
                runtime: runtime_module.Runtime,
-               maxlen: int = 1000) -> None:
+               maxlen: int = 500) -> None:
     super().__init__(runtime, maxlen)
     self.fig.title = 'Reward'
     self.maxlines = 1

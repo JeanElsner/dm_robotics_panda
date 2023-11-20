@@ -49,7 +49,7 @@ if __name__ == '__main__':
   # Use RobotParams to customize Panda robots added to the environment.
   # We use robot_ip for hardware-in-the-loop operation.
   robot_params = params.RobotParams(robot_ip=args.robot_ip)
-  panda_env = environment.PandaEnvironment(robot_params)
+  panda_env = environment.PandaEnvironment(robot_params, control_timestep=0.05)
 
   with panda_env.build_task_environment() as env:
     # Print the full action, observation and reward specification.
