@@ -3,12 +3,13 @@
 <h2 align="center">Model and Tools for the Panda Robot in dm_robotics</h2>
 
 <p align="center">
-<a href="https://github.com/JeanElsner/dm_robotics_panda/actions/workflows/main.yml"><img alt="Continuous Integration" src="https://img.shields.io/github/actions/workflow/status/JeanElsner/dm_robotics_panda/main.yml" /></a>
-<a href="https://github.com/JeanElsner/dm_robotics_panda/blob/main/LICENSE"><img alt="Apache-2.0 License" src="https://img.shields.io/github/license/JeanElsner/dm_robotics_panda" /></a>
-<a href="https://jeanelsner.github.io/dm_robotics_panda/pylint.log"><img alt="Pylint score" src="https://jeanelsner.github.io/dm_robotics_panda/pylint.svg" /></a>
-<a href="https://pypi.org/project/dm-robotics-panda/"><img alt="PyPI - Published Version" src="https://img.shields.io/pypi/v/dm-robotics-panda"></a>
-<a href="https://codecov.io/gh/JeanElsner/dm_robotics_panda"><img src="https://codecov.io/gh/JeanElsner/dm_robotics_panda/graph/badge.svg?token=7mk9f5yM8y"/></a>
-<img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/dm-robotics-panda">
+  <a href="https://github.com/JeanElsner/dm_robotics_panda/actions/workflows/main.yml"><img alt="Continuous Integration" src="https://img.shields.io/github/actions/workflow/status/JeanElsner/dm_robotics_panda/main.yml" /></a>
+  <a href="https://github.com/JeanElsner/dm_robotics_panda/blob/main/LICENSE"><img alt="Apache-2.0 License" src="https://img.shields.io/github/license/JeanElsner/dm_robotics_panda" /></a>
+  <a href="https://jeanelsner.github.io/dm_robotics_panda/pylint.log"><img alt="Pylint score" src="https://jeanelsner.github.io/dm_robotics_panda/pylint.svg" /></a>
+  <a href="https://pypi.org/project/dm-robotics-panda/"><img alt="PyPI - Published Version" src="https://img.shields.io/pypi/v/dm-robotics-panda"></a>
+  <a href="https://codecov.io/gh/JeanElsner/dm_robotics_panda"><img src="https://codecov.io/gh/JeanElsner/dm_robotics_panda/graph/badge.svg?token=7mk9f5yM8y"/></a>
+  <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/dm-robotics-panda">
+  <a href="https://jeanelsner.github.io/dm_robotics_panda"><img alt="Documentation" src="https://shields.io/badge/-Documentation-informational" /><a/>
 </p>
 
 This package includes a model of the Panda robot for [dm_robotics](https://github.com/google-deepmind/dm_robotics), tools to build simulation environments suited for reinforcement learning, and allows you to run these simulations with real hardware in the loop. 
