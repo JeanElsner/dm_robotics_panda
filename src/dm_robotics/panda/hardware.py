@@ -94,7 +94,8 @@ class RobotArmSensor(robot_arm_sensor.RobotArmSensor):
         arm_constants.Actuation.CARTESIAN_VELOCITY,
         arm_constants.Actuation.JOINT_VELOCITY
     ]:
-      physics_actuators.act[:] = self.hardware.get_state().q
+      # physics_actuators.act[:] = self.hardware.get_state().q
+      self._arm.set_joint_angles(physics, self.hardware.q)
     elif self._arm._actuation == arm_constants.Actuation.HAPTIC:
       physics_actuators.ctrl[:] = self.hardware.get_state().q
     return physics.bind(self._arm.joints).qpos
@@ -190,8 +191,6 @@ class PandaHandEffector(gripper.PandaHandEffector):
       last_command = self._last_command
       if command is not None and command != last_command:
         self._last_command = command
-        print(command, last_command)
-        print(self._panda_hand_sensor._PandaHandSensor__width)
         self.hardware.grasp(command, 0.2, 20, 0.08, 0.08)
 
   def close(self):
@@ -251,7 +250,7 @@ def build_robot(robot_params: params.RobotParams) -> robot.Robot:
   robot.standard_compose(panda, _gripper)
   moma_robot = robot.StandardRobot(arm=panda,
                                    arm_base_site_name=panda.base_site.name,
-                                   gripper=gripper,
+                                   gripper=_gripper,
                                    robot_sensors=robot_sensors,
                                    arm_effector=_arm_effector,
                                    gripper_effector=gripper_effector)
