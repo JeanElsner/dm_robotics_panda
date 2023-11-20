@@ -28,8 +28,11 @@ class Agent:
 
   def step(self, timestep: dm_env.TimeStep) -> np.ndarray:
     """ Provides robot actions every control-timestep. """
-    del timestep  # not used
+    observation = timestep.observation
+    v = observation['ball_pose'][:3] - observation['panda_tcp_pos']
+    v = 0.1 * v / np.linalg.norm(v)
     action = np.zeros(shape=self._spec.shape, dtype=self._spec.dtype)
+    action[:3] = v
     return action
 
 
