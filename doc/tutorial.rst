@@ -231,12 +231,33 @@ the gripper's fingers. This can also be observed in the gripper's width observat
 Haptic Interaction
 ------------------
 
+The haptic actuation mode is a special mode that renders constraint forces from
+the simulation on the real robot when used with HIL. This allows users to haptically
+interact with the simulation through the robot. Haptic mode is activated through the
+robot configuration. Additional settings include ``joint_damping`` which is usually
+set to 0.
+
 .. code:: python
 
    robot_params = params.RobotParams(robot_ip=args.robot_ip,
                                      actuation=arm_constants.Actuation.HAPTIC,
                                      joint_damping=np.zeros(7))
-   panda_env = environment.PandaEnvironment(robot_params, arena, 0.01)
+   panda_env = environment.PandaEnvironment(robot_params,
+                                            arena,
+                                            control_timestep=0.01)
+
+Setting the MoMa control timestep to a small value will improve quality and stability of the
+physical interaction. The example implemented in ``examples/haptics.py`` loads a simple scene
+from an MJCF file that includes a static cube.
+
+.. code:: python
+
+   # Load environment from an MJCF file.
+   XML_PATH = os.path.join(os.path.dirname(__file__), 'assets', 'haptics.xml')
+   arena = composer.Arena(xml_path=XML_PATH)
+
+The video below demonstrates haptic interaction mode. Note that the HIL connection feeds
+measured external forces back into the simulation which can be accessed as observations.
 
 .. youtube:: hn42udf0uKc
 

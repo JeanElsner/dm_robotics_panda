@@ -48,7 +48,9 @@ if __name__ == '__main__':
   robot_params = params.RobotParams(robot_ip=args.robot_ip,
                                     actuation=arm_constants.Actuation.HAPTIC,
                                     joint_damping=np.zeros(7))
-  panda_env = environment.PandaEnvironment(robot_params, arena, 0.01)
+  panda_env = environment.PandaEnvironment(robot_params,
+                                           arena,
+                                           control_timestep=0.01)
 
   with panda_env.build_task_environment() as env:
     # Print the full action, observation and reward specification.
