@@ -23,7 +23,7 @@ jobs:
         pip install .[test]
     - name: Test with pytest
       run: |
-        pytest ./tests/
+        pytest ./test/
   upload:
     name: Upload coverage report
     needs: unittest
@@ -41,7 +41,7 @@ jobs:
           pip install .[test]
       - name: Produce coverage report
         run: |
-          pytest --cov dm_robotics.panda --cov-report xml:coverage.xml ./tests/
+          pytest --cov dm_robotics.panda --cov-report xml:coverage.xml ./test/
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v3
         env:

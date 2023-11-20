@@ -6,7 +6,7 @@
       {
         "label": "pytest",
         "type": "shell",
-        "command": "pytest --cov dm_robotics.panda ./tests/"
+        "command": "pytest --cov dm_robotics.panda ./test/"
       },
       {
         "label": "pylint",
