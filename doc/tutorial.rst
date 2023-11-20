@@ -265,7 +265,9 @@ measured external forces back into the simulation which can be accessed as obser
 Multiple Robots
 ---------------
 
-``examples/multiple_robots.py``
+Populating an environment with multiple Panda robots is done by simply
+creating multiple robot configurations and using them to instantiate
+:py:class:`dm_robotics.panda.environment.PandaEnvironment`.
 
 .. code:: python
 
@@ -276,10 +278,18 @@ Multiple Robots
                                 pose=[.5, .5, 0, 0, 0, np.pi * 5 / 4])
    panda_env = environment.PandaEnvironment([robot_1, robot_2, robot_3])
 
+The ``pose`` parameter is a 6-vector that describes a transform (linear displacement and Euler angles)
+to a robot's base. Without this configuration the three robots would spawn in same location.
+A minimal example of multiple robot is implemented in ``examples/multiple_robots.py``
+and shown below.
+
 .. image:: img/multiple_robots.png
    :alt: Multiple Robots
 
-``examples/two_arm_robot.py``
+In a more sophisticated application we can build a simple robot with a branching kinematic structure.
+For this purpose we modeled a stationary robot with a hinge joint around its main axis. The MJCF file
+includes ``site`` elements as part of the robot's body that define the attachment as well as control
+frames.
 
 .. code:: python
 
@@ -288,6 +298,11 @@ Multiple Robots
    left_frame = arena.mjcf_model.find('site', 'left')
    right_frame = arena.mjcf_model.find('site', 'right')
    control_frame = arena.mjcf_model.find('site', 'control')
+
+Using an attachment frame is different from using the ``pose`` parameter in so far as the
+attached Panda robot will be a child of the ``body`` containing the attachment site. The
+control frame is the reference frame used by the Cartesian velocity motion controller.
+It is also used to compute pose, velocity and wrench observations in control frame.
 
 .. code:: python
 
@@ -300,7 +315,14 @@ Multiple Robots
    env_params = params.EnvirontmentParameters(mjcf_root=arena)
    panda_env = environment.PandaEnvironment([left, right], arena)
 
+By using the same control frame attached to the robot's body for both arms, the Cartesian motion of the
+arms is invariant to the rotation of the robot (i.e. the reference frame rotates with the main body).
+This can be seen in ``examples/two_arm_robot.py``. In this example the agent produces a sinusoidal velocity
+action along the x-axis for both arms. In the video below, the user can be seen to interact with the robot
+body to rotate it, while the motion remains invariant.
+
 .. youtube:: cAUjkhrBmN4
+
 
 Reward and Observation
 ----------------------
