@@ -184,18 +184,22 @@ class ObservationPlot(Plot):
                maxlen: int = 500) -> None:
     super().__init__(runtime, maxlen)
     self._obs_idx = None
-    self._obs_keys = None
+    self._obs_keys = []
 
   def _init_buffer(self):
-    for obs in self._rt._time_step.observation.values():
+    for key, obs in self._rt._time_step.observation.items():
+      if len(np.atleast_1d(obs).shape) > 1:
+        continue
+      self._obs_keys.append(key)
       lines = np.atleast_1d(obs).shape[0]
       if lines > self.maxlines:
         self.maxlines = lines
+    print(self._obs_keys)
     for _1 in range(self.maxlines):
       self.y.append(deque(maxlen=self.maxlen))
     self.reset_data()
     self._obs_idx = 0
-    self._obs_keys = list(self._rt._time_step.observation.keys())
+    # self._obs_keys = list(self._rt._time_step.observation.keys())
     self.update_title()
 
   def update_title(self):
