@@ -8,7 +8,8 @@ from dm_control.composer.variation import distributions
 from dm_env import specs
 from dm_robotics.agentflow import spec_utils
 from dm_robotics.agentflow.preprocessors import (observation_transforms,
-                                                 rewards, timestep_preprocessor)
+                                                 rewards,
+                                                 timestep_preprocessor)
 from dm_robotics.geometry import pose_distribution
 from dm_robotics.manipulation.props.rgb_objects import rgb_object
 from dm_robotics.moma import entity_initializer, prop, robot, sensor
@@ -100,8 +101,8 @@ if __name__ == '__main__':
 
   from dm_robotics.moma.sensors import camera_sensor
 
-  camera_sensor.CameraImageSensor(
-      panda_env._arena.mjcf_model.find('camera', 'wrist_camera'),
+  cam_sensor = camera_sensor.CameraImageSensor(
+      panda_env._arena.mjcf_model.find('camera', 'panda/panda_gripper/wrist_camera'),
       camera_sensor.CameraConfig(has_depth=True), 'wrist_cam')
 
   ball = Ball()
@@ -112,14 +113,14 @@ if __name__ == '__main__':
   panda_env.add_props(props)
 
   initialize_props = entity_initializer.prop_initializer.PropPlacer(
-      props, distributions.Uniform(-.5, .5))
+      props, distributions.Uniform(0, .5))
 
   panda_env.add_timestep_preprocessors([reward])
   panda_env.add_entity_initializers([
       initialize_arm,
       initialize_props,
   ])
-  panda_env.add_extra_sensors([prop_pose_sensor.PropPoseSensor(ball, 'goal')])
+  panda_env.add_extra_sensors([cam_sensor, prop_pose_sensor.PropPoseSensor(ball, 'goal')])
 
   with panda_env.build_task_environment() as env:
     # Print the full action, observation and reward specification
