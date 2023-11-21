@@ -30,7 +30,7 @@ class ArmEffector(arm.ArmEffector):
     self.init_hardware(robot_params)
 
   def init_hardware(self, robot_params: params.RobotParams) -> None:
-    if not self.hardware.move_to_joint_position(robot_params.joint_values):
+    if not self.hardware.move_to_joint_position(robot_params.joint_positions):
       raise RuntimeError('Failed to reach initial robot joint positions.')
     self.actuation = robot_params.actuation
     if self.actuation in [

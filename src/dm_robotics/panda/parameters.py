@@ -31,7 +31,7 @@ class RobotParams:
   """
   name: str = 'panda'
   pose: Optional[Sequence[float]] = None
-  joint_values: Sequence[float] = (0, -0.785, 0, -2.356, 0, 1.571, 0.785)
+  joint_positions: Sequence[float] = (0, -0.785, 0, -2.356, 0, 1.571, 0.785)
   attach_site: Optional[mjcf.Element] = None
   control_frame: Optional[mjcf.Element] = None
   actuation: arm_constants.Actuation = arm_constants.Actuation.CARTESIAN_VELOCITY
@@ -39,35 +39,3 @@ class RobotParams:
   robot_ip: Optional[str] = None
   joint_stiffness: Sequence[float] = (600, 600, 600, 600, 250, 150, 50)
   joint_damping: Sequence[float] = (50, 50, 50, 20, 20, 20, 10)
-
-
-@dataclasses.dataclass
-class Extensions:
-  """Defines callables to extend the subtask environment builder."""
-  build_arena: Optional[Callable[[empty.Arena], None]] = None
-  build_robots: Optional[Callable[[Sequence[robot.Robot]], None]] = None
-  build_scene_initializer: Optional[
-      Callable[[Sequence[robot.Robot], composer.Arena],
-               base_task.SceneInitializer]] = None
-  build_entity_initializer: Optional[
-      Callable[[Sequence[robot.Robot], composer.Arena],
-               entity_initializer.base_initializer.Initializer]] = None
-  build_extra_effectors: Optional[
-      Callable[[Sequence[robot.Robot], composer.Arena],
-               Sequence[effector.Effector]]] = None
-  build_extra_sensors: Optional[Callable[
-      [Sequence[robot.Robot], composer.Arena], Sequence[sensor.Sensor]]] = None
-
-
-@dataclasses.dataclass
-class EnvirontmentParameters:
-  """Task-level parameters.
-
-  Args:
-    mjcf_root: MJCF model of the scene. The Panda robots will be added
-      by :py:class:`dm_robotics.panda.env_builder.PandaEnvironmentBuilder`-
-    arena: Reinforcement learning environment.
-    control_timestep: Timestep size of the controlling agent."""
-  mjcf_root: Optional[mjcf.RootElement] = None
-  arena: Optional[composer.Environment] = None
-  control_timestep: float = 0.1
