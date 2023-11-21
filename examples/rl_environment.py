@@ -78,6 +78,13 @@ if __name__ == '__main__':
   robot_params = params.RobotParams(robot_ip=args.robot_ip)
   panda_env = environment.PandaEnvironment(robot_params)
 
+  panda_env.robots[robot_params.name].gripper.tool_center_point.parent.add(
+      'camera',
+      pos=(.1, 0, -.1),
+      euler=(180, 0, -90),
+      fovy=90,
+      name='wrist_camera')
+
   gripper_pose_dist = pose_distribution.UniformPoseDistribution(
       min_pose_bounds=np.array(
           [0.5, -0.3, 0.7, .75 * np.pi, -.25 * np.pi, -.25 * np.pi]),
@@ -91,16 +98,23 @@ if __name__ == '__main__':
       goal_reward,
       validation_frequency=timestep_preprocessor.ValidationFrequency.ALWAYS)
 
+  from dm_robotics.moma.sensors import camera_sensor
+
+  camera_sensor.CameraImageSensor(
+      panda_env._arena.mjcf_model.find('camera', 'wrist_camera'),
+      camera_sensor.CameraConfig(has_depth=True), 'wrist_cam')
+
   ball = Ball()
   props = [ball]
   for i in range(5):
     props.append(rgb_object.RandomRgbObjectProp(color=(.5, .5, .5, 1)))
 
+  panda_env.add_props(props)
+
   initialize_props = entity_initializer.prop_initializer.PropPlacer(
       props, distributions.Uniform(-.5, .5))
 
   panda_env.add_timestep_preprocessors([reward])
-  panda_env.add_props(props)
   panda_env.add_entity_initializers([
       initialize_arm,
       initialize_props,

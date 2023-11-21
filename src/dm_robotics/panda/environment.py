@@ -5,7 +5,9 @@
   interact with. The default configuration is a ready to run
   `dm_control.rl.control.Environment` but all aspects like e.g.
   reward, observation and action spec can be fully customized."""
+import collections
 import dataclasses
+import typing
 from typing import Callable, Optional, Sequence, Union
 
 from dm_control import composer, mjcf
@@ -13,7 +15,7 @@ from dm_control.rl import control
 from dm_robotics.agentflow.preprocessors import (observation_transforms,
                                                  timestep_preprocessor)
 from dm_robotics.geometry import joint_angles_distribution, pose_distribution
-from dm_robotics.moma import base_task, entity_initializer, prop
+from dm_robotics.moma import base_task, effector, entity_initializer, prop
 from dm_robotics.moma import robot as robot_module
 from dm_robotics.moma import (scene_initializer, sensor, subtask_env,
                               subtask_env_builder)
@@ -43,14 +45,14 @@ class PandaEnvironment:
     self._arena.mjcf_model.compiler.angle = 'degree'
     self._arena.mjcf_model.option.timestep = physics_timestep
 
-    self._robots = []
+    self._robots = collections.OrderedDict()
     for robot_params in self._robot_params:
       if robot_params.robot_ip is not None:
         robot = hardware.build_robot(robot_params)
       else:
         robot = arm.build_robot(robot_params)
-      self._robots.append(robot)
-    for robot, robot_params in zip(self._robots, self._robot_params):
+      self._robots[robot_params.name] = robot
+    for robot, robot_params in zip(self._robots.values(), self._robot_params):
       self._arena.attach(robot.arm, robot_params.attach_site)
 
     self._scene_initializers = []
@@ -61,7 +63,7 @@ class PandaEnvironment:
     self._timestep_preprocessors = []
 
   @property
-  def robots(self) -> Sequence[robot_module.Robot]:
+  def robots(self) -> typing.Dict[str, robot_module.Robot]:
     return self._robots
 
   def build_task_environment(self) -> subtask_env.SubTaskEnvironment:
@@ -70,7 +72,7 @@ class PandaEnvironment:
     task = base_task.BaseTask(
         task_name='panda',
         arena=self._arena,
-        robots=self._robots,
+        robots=self._robots.values(),
         props=self._props,
         extra_sensors=self._extra_sensors,
         extra_effectors=self._extra_effectors,
@@ -114,8 +116,11 @@ class PandaEnvironment:
   def add_extra_sensors(self, extra_sensors: Sequence[sensor.Sensor]):
     self._extra_sensors.extend(extra_sensors)
 
+  def add_extra_effectors(self, extra_effectors: Sequence[effector.Effector]):
+    self._extra_effectors.extend(extra_effectors)
+
   def _build_scene_initializer(self) -> base_task.SceneInitializer:
-    for robot, robot_params in zip(self._robots, self._robot_params):
+    for robot, robot_params in zip(self._robots.values(), self._robot_params):
       if robot_params.pose is not None:
         arm_pose = pose_distribution.ConstantPoseDistribution(robot_params.pose)
         self._scene_initializers.insert(
@@ -126,9 +131,9 @@ class PandaEnvironment:
 
   def _build_entity_initializer(
       self) -> entity_initializer.base_initializer.Initializer:
-    for robot, robot_params in zip(self._robots, self._robot_params):
+    for robot, robot_params in zip(self._robots.values(), self._robot_params):
       arm_joint_values = joint_angles_distribution.ConstantPanTiltDistribution(
-          robot_params.joint_values)
+          robot_params.joint_positions)
       arm_init = entity_initializer.JointsInitializer(
           robot.position_arm_joints, arm_joint_values.sample_angles)
       self._entity_initializers.insert(0, arm_init)

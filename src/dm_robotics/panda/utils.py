@@ -250,7 +250,7 @@ class ActionPlot(Plot):
     self.reset_data()
 
   def render(self, context, viewport):
-    if self._rt._time_step is None:
+    if self._rt._time_step is None or self._rt.last_action is None:
       return
     for i, a in enumerate(self._rt.last_action):
       self.fig.linepnt[i] = self.maxlen
