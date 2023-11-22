@@ -108,6 +108,10 @@ class PandaEnvironment:
       initializers: Sequence[entity_initializer.base_initializer.Initializer]):
     self._entity_initializers.extend(initializers)
 
+  def add_scene_initializers(
+      self, initializers: Sequence[base_task.SceneInitializer]):
+    self._scene_initializers.extend(initializers)
+
   def add_timestep_preprocessors(
       self,
       preprocessors: Sequence[timestep_preprocessor.TimestepPreprocessor]):
