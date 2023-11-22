@@ -1,13 +1,10 @@
 """RL environment builder for the Panda MoMa model."""
 import collections
-import dataclasses
 import typing
-from typing import Callable, Optional, Sequence, Union
+from typing import Sequence, Union
 
-from dm_control import composer, mjcf
-from dm_control.rl import control
-from dm_robotics.agentflow.preprocessors import (observation_transforms,
-                                                 timestep_preprocessor)
+from dm_control import composer
+from dm_robotics.agentflow.preprocessors import timestep_preprocessor
 from dm_robotics.geometry import joint_angles_distribution, pose_distribution
 from dm_robotics.moma import base_task, effector, entity_initializer, prop
 from dm_robotics.moma import robot as robot_module
@@ -23,6 +20,7 @@ from . import utils
 
 
 class PandaEnvironment:
+  """Adds Panda robots to an arena and creates a subtask environment."""
 
   def __init__(self,
                robot_params: Union[
@@ -58,10 +56,15 @@ class PandaEnvironment:
 
   @property
   def robots(self) -> typing.Dict[str, robot_module.Robot]:
+    """A map of the configured robots indexed by name."""
     return self._robots
 
   def build_task_environment(self) -> subtask_env.SubTaskEnvironment:
-    """Builds an rl environment for the Panda robot."""
+    """Builds a subtask environment.
+    
+    The environment includes the configured robots as well as
+    any added components such as props, initializers, preprocessors etc.
+    """
     self._extra_sensors.append(utils.TimeSensor())
     task = base_task.BaseTask(
         task_name='panda',
@@ -92,6 +95,7 @@ class PandaEnvironment:
     return env
 
   def add_props(self, props: Sequence[prop.Prop]):
+    """Add props as free entities to the arena."""
     self._props.extend(props)
     for p in self._props:
       frame = self._arena.add_free_entity(p)
@@ -100,21 +104,26 @@ class PandaEnvironment:
   def add_entity_initializers(
       self,
       initializers: Sequence[entity_initializer.base_initializer.Initializer]):
+    """Add entity initializers."""
     self._entity_initializers.extend(initializers)
 
   def add_scene_initializers(
       self, initializers: Sequence[base_task.SceneInitializer]):
+    """Add scene initializers."""
     self._scene_initializers.extend(initializers)
 
   def add_timestep_preprocessors(
       self,
       preprocessors: Sequence[timestep_preprocessor.TimestepPreprocessor]):
+    """Add timestep preprocessors."""
     self._timestep_preprocessors.extend(preprocessors)
 
   def add_extra_sensors(self, extra_sensors: Sequence[sensor.Sensor]):
+    """Add extra sensor."""
     self._extra_sensors.extend(extra_sensors)
 
   def add_extra_effectors(self, extra_effectors: Sequence[effector.Effector]):
+    """Add extra effectors."""
     self._extra_effectors.extend(extra_effectors)
 
   def _build_scene_initializer(self) -> base_task.SceneInitializer:
@@ -139,6 +148,7 @@ class PandaEnvironment:
         gripper_joint_values = joint_angles_distribution.ConstantPanTiltDistribution(
             [.04, .04])
         initialize_gripper = entity_initializer.JointsInitializer(
-            robot.gripper.set_joint_angles, gripper_joint_values.sample_angles)
+            robot.gripper.set_joint_positions,
+            gripper_joint_values.sample_angles)
         self._entity_initializers.insert(0, initialize_gripper)
     return entity_initializer.TaskEntitiesInitializer(self._entity_initializers)

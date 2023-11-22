@@ -1,8 +1,8 @@
-"""MoMa model of the Franka Emika robot manipulator."""
+"""MoMa robot arm model of the Panda along with specialized effectors and sensors."""
 import dataclasses
 import enum
 import logging
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 import mujoco
 import numpy as np
@@ -22,7 +22,7 @@ from dm_robotics.moma.sensors import (robot_arm_sensor, robot_tcp_sensor,
 from dm_robotics.transformations import transformations as tr
 
 from . import arm_constants as consts
-from . import gripper
+from . import gripper as gripper_module
 from . import parameters as params
 from . import utils
 
@@ -95,6 +95,11 @@ class Panda(robot_arm.RobotArm):
                          random_state: np.random.RandomState):
     """Function called at the beginning of every episode."""
     del random_state  # Unused.
+
+  @property
+  def actuation(self) -> consts.Actuation:
+    """Selected actuation mode."""
+    return self._actuation
 
   @property
   def joints(self) -> List[types.MjcfElement]:
@@ -235,7 +240,7 @@ class Panda(robot_arm.RobotArm):
         zip(consts.EFFORT_LIMITS['min'], consts.EFFORT_LIMITS['max']))
 
     def add_actuator(i: int) -> types.MjcfElement:
-      params = _PANDA_ACTUATOR_PARAMS[self._actuation][i]
+      act_params = _PANDA_ACTUATOR_PARAMS[self._actuation][i]
       actuator = self._mjcf_root.actuator.add('general',
                                               name=f'j{i}',
                                               ctrllimited=True,
@@ -244,8 +249,8 @@ class Panda(robot_arm.RobotArm):
                                               forcerange=force_ranges[i],
                                               dyntype=dyntype,
                                               biastype='affine',
-                                              gainprm=params.gainprm,
-                                              biasprm=params.biasprm)
+                                              gainprm=act_params.gainprm,
+                                              biasprm=act_params.biasprm)
       actuator.joint = self._joints[i]
       return actuator
 
@@ -341,23 +346,10 @@ class Cartesian6dVelocityEffector(
     super().__init__(robot_params.name, joint_velocity_effector, model_params,
                      control_params)
 
-  def initialize_episode(self, physics, random_state) -> None:
-    self._pos = self._get_world_pos(physics).copy()
-    return super().initialize_episode(physics, random_state)
-
   def set_control(self, physics: mjcf.Physics, command: np.ndarray) -> None:
     stamped_command = geometry.TwistStamped(command, self._frame)
     world_twist = stamped_command.get_world_twist(mujoco_physics.wrap(physics),
                                                   rot_only=True).full.copy()
-    # TODO: paramerize virtual walls
-    # pos = self._get_world_pos(physics)
-    # vec = pos-self._pos
-    # norm = np.linalg.norm(vec)
-    # if norm >= .2:
-    #   vec /= norm
-    #   proj = vec@world_twist[:3]
-    #   if np.sign(proj) > 0:
-    #     world_twist[:3] -= proj*vec
     super().set_control(physics, world_twist)
 
 
@@ -413,7 +405,6 @@ class WrenchEffector(ArmEffector):
   _site_id: int
 
   def __init__(self, robot_params: params.RobotParams, arm: robot_arm.RobotArm):
-    #TODO extend to generic frame
     super().__init__(robot_params, arm)
     self._spec = None
     self._frame = robot_params.control_frame
@@ -527,6 +518,11 @@ class RobotTCPSensor(site_sensor.SiteSensor):
 
 
 class RobotArmSensor(robot_arm_sensor.RobotArmSensor):
+  """Behaves like :py:class:`dm_robotics.moma.sensors.robot_arm_sensor.RobotArmSensor`.
+  
+  Except that the joint torque signal does not include passive forces.
+  This is done so as to model the external torque signal provided by the Panda robot.
+  """
 
   def __init__(self, robot_params: params.RobotParams, arm: robot_arm.RobotArm):
     super().__init__(arm, robot_params.name, True)
@@ -545,13 +541,13 @@ def build_robot(robot_params: params.RobotParams) -> robot.Robot:
 
   ns_gripper = f'{robot_params.name}_gripper'
   if robot_params.has_hand:
-    _gripper = gripper.PandaHand(name=ns_gripper)
-    panda_hand_sensor = gripper.PandaHandSensor(_gripper, ns_gripper)
+    _gripper = gripper_module.PandaHand(name=ns_gripper)
+    panda_hand_sensor = gripper_module.PandaHandSensor(_gripper, ns_gripper)
     robot_sensors.append(panda_hand_sensor)
-    gripper_effector = gripper.PandaHandEffector(robot_params, _gripper,
-                                                 panda_hand_sensor)
+    gripper_effector = gripper_module.PandaHandEffector(robot_params, _gripper,
+                                                        panda_hand_sensor)
   else:
-    _gripper = gripper.DummyHand(name=ns_gripper)
+    _gripper = gripper_module.DummyHand(name=ns_gripper)
     gripper_effector = None
 
   tcp_sensor = RobotTCPSensor(_gripper, robot_params)

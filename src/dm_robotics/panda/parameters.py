@@ -1,11 +1,8 @@
 """Contains dataclasses holding parameter configurations."""
 import dataclasses
-from typing import Callable, Optional, Sequence
+from typing import Optional, Sequence
 
-from dm_control import composer, mjcf
-from dm_robotics.moma import (base_task, effector, entity_initializer, robot,
-                              sensor)
-from dm_robotics.moma.models.arenas import empty
+from dm_control import mjcf
 
 from . import arm_constants
 

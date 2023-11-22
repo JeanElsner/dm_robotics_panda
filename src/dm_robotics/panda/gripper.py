@@ -1,6 +1,6 @@
 """Panda Hand gripper."""
 import enum
-from typing import Dict, Sequence, Tuple, Union
+from typing import Dict, Sequence
 
 import numpy as np
 from dm_control import mjcf
@@ -17,9 +17,10 @@ from . import parameters as params
 
 
 class PandaHand(robot_hand.RobotHand):
-  """MOMA composer robot hand base class."""
+  """MoMa robot hand model of the Franka Hand."""
 
   _mjcf_root: mjcf.RootElement
+  _state: consts.STATES
 
   def _build(self, name: str = 'panda_hand'):
     self._mjcf_root = mjcf.from_path(consts.XML_PATH)
@@ -65,43 +66,33 @@ class PandaHand(robot_hand.RobotHand):
                          random_state: np.random.RandomState):
     """Function called at the beginning of every episode."""
     del random_state  # Unused.
-
-    # Apply gravity compensation
-    # body_elements = self.mjcf_model.find_all('body')
-    # gravity = np.hstack([physics.model.opt.gravity, [0, 0, 0]])
-    # physics_bodies = physics.bind(body_elements)
-    # if physics_bodies is None:
-    #   raise ValueError('Calling physics.bind with bodies returns None.')
-    # physics_bodies.xfrc_applied[:] = -gravity * physics_bodies.mass[..., None]
-
     self._state = consts.STATES.READY
 
   def set_width(self, physics: mjcf.Physics, width: float):
-    self.set_joint_angles(physics, [width * 0.5] * 2)
+    """Set desired aperture of the gripper."""
+    self.set_joint_positions(physics, [width * 0.5] * 2)
 
-  def set_joint_angles(self, physics: mjcf.Physics,
-                       joint_angles: np.ndarray) -> None:
+  def set_joint_positions(self, physics: mjcf.Physics,
+                          joint_positions: np.ndarray) -> None:
     """Sets the joints of the gripper to a given configuration.
 
-    This function allows to change the joint configuration of the Panda hand
-    and sets the controller to prevent the impedance controller from moving back
-    to the previous configuration.
+    Changes the joint state as well as the current control signal to
+    the desired joint state.
 
     Args:
       physics: A `mujoco.Physics` instance.
-      joint_angles: The desired joints configuration for the robot gripper.
+      joint_positions: The desired joint state for the robot gripper.
     """
     physics_joints = models_utils.binding(physics, self._joints)
     physics_actuators = models_utils.binding(physics, self._actuators)
 
-    physics_joints.qpos[:] = joint_angles
-    physics_actuators.ctrl[:] = joint_angles[0] * 2 / 0.08
+    physics_joints.qpos[:] = joint_positions
+    physics_actuators.ctrl[:] = joint_positions[0] * 2 / 0.08
     self._state = consts.STATES.READY
 
 
 @enum.unique
-class PandaHandObservations(enum.Enum):
-
+class _PandaHandObservations(enum.Enum):
   WIDTH = '{}_width'
 
   STATE = '{}_state'
@@ -112,14 +103,19 @@ class PandaHandObservations(enum.Enum):
 
 
 class PandaHandSensor(sensor.Sensor):
+  """Sensor for the Panda gripper.
+
+  Provides two observations, namely, the current aperture or width
+  between the fingers as well as gripper's state.
+  """
 
   def __init__(self, gripper: PandaHand, name: str) -> None:
     self._gripper = gripper
     self._name = name
     self._observables = {
-        self.get_obs_key(PandaHandObservations.WIDTH):
+        self.get_obs_key(_PandaHandObservations.WIDTH):
             observable.Generic(self._width),
-        self.get_obs_key(PandaHandObservations.STATE):
+        self.get_obs_key(_PandaHandObservations.STATE):
             observable.Generic(self._state)
     }
     for obs in self._observables.values():
@@ -157,6 +153,11 @@ class PandaHandSensor(sensor.Sensor):
 
 
 class PandaHandEffector(default_gripper_effector.DefaultGripperEffector):
+  """Panda gripper effector.
+
+  Action space is binary. The gripper's finger will move until blocked
+  and then continuously apply a force either outwards or inwards, corresponding
+  to actions 1 and 0 respectively. Actions between 0 and 1 get rounded."""
 
   def __init__(self, robot_params: params.RobotParams,
                gripper: robot_hand.RobotHand,
@@ -165,7 +166,7 @@ class PandaHandEffector(default_gripper_effector.DefaultGripperEffector):
     self._robot_params = robot_params
     self._panda_hand_sensor = panda_hand_sensor
     self._state_getter = self._panda_hand_sensor.observables[
-        self._panda_hand_sensor.get_obs_key(PandaHandObservations.STATE)]
+        self._panda_hand_sensor.get_obs_key(_PandaHandObservations.STATE)]
     self._spec = None
 
   def set_control(self, physics: mjcf.Physics, command: np.ndarray) -> None:

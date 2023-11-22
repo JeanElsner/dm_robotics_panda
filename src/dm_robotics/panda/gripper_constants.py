@@ -1,3 +1,4 @@
+"""Constants used by the gripper module."""
 import enum
 import os
 
@@ -14,7 +15,11 @@ JOINT_NAMES = ['panda_finger_joint1', 'panda_finger_joint2']
 SPEED_TOLERANCE = 0.003
 CONSECUTIVE_SAMPLES = 10
 
+
 @enum.unique
 class STATES(enum.Enum):
+  """Possible gripper states."""
   READY = 0
+  """Gripper can accept a new command."""
   WAITING = 1
+  """Gripper will not accept new command."""

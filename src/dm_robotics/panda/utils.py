@@ -1,11 +1,10 @@
 """Utility module for the Panda MoMa model."""
+import abc
 import argparse
 import enum
 import logging
-import pickle
-import threading
 from collections import deque
-from typing import Dict, Hashable, Optional, Sequence, Tuple
+from typing import Dict, Sequence
 
 import mujoco
 import numpy as np
@@ -15,9 +14,7 @@ from dm_control.rl import control
 from dm_control.viewer import application, renderer
 from dm_control.viewer import runtime as runtime_module
 from dm_control.viewer import user_input, views
-from dm_robotics.geometry import geometry
 from dm_robotics.moma import robot, sensor
-from dm_robotics.transformations import transformations as tr
 
 
 def full_spec(env: control.Environment):
@@ -68,6 +65,7 @@ class Formatter(logging.Formatter):
 
 
 class DuplicateFilter(logging.Filter):
+  """Filters duplicate for a given dead time."""
 
   def __init__(self, dead_time: float = 5.0) -> None:
     self._dead_time = dead_time
@@ -114,7 +112,7 @@ def set_joint_damping(damping: Sequence[float], arm: robot.Arm,
 
 
 @enum.unique
-class TimeObservation(enum.Enum):
+class _TimeObservation(enum.Enum):
   TIME = 'time'
 
   def get_obs_key(self, name: str) -> str:
@@ -127,7 +125,7 @@ class TimeSensor(sensor.Sensor):
 
   def __init__(self) -> None:
     self._observables = {
-        self.get_obs_key(TimeObservation.TIME): observable.Generic(self._time)
+        self.get_obs_key(_TimeObservation.TIME): observable.Generic(self._time)
     }
     for obs in self._observables.values():
       obs.enabled = True
@@ -151,7 +149,8 @@ class TimeSensor(sensor.Sensor):
     return np.array([physics.data.time])
 
 
-class Plot(renderer.Component):
+class Plot(renderer.Component, abc.ABC):
+  """Abstract base class for plotting components."""
 
   def __init__(self, runtime: runtime_module.Runtime, maxlen: int) -> None:
     self._rt = runtime
@@ -167,6 +166,7 @@ class Plot(renderer.Component):
     self.fig.linewidth = 1.5
 
   def reset_data(self):
+    """Reset line data."""
     for i in range(self.maxlines):
       for j in range(self.maxlen):
         del j
@@ -202,6 +202,7 @@ class ObservationPlot(Plot):
     self.update_title()
 
   def update_title(self):
+    """Update the title to the current observation."""
     self.fig.title = f'{self._obs_keys[self._obs_idx]:100s}'
 
   def render(self, context, viewport):
@@ -223,11 +224,13 @@ class ObservationPlot(Plot):
     mujoco.mjr_figure(pos, self.fig, context.ptr)
 
   def next_obs(self):
+    """Go to the next observation."""
     self._obs_idx = (self._obs_idx + 1) % len(self._obs_keys)
     self.reset_data()
     self.update_title()
 
   def prev_obs(self):
+    """Go to the previous observation."""
     self._obs_idx = (self._obs_idx - 1) % len(self._obs_keys)
     self.reset_data()
     self.update_title()
@@ -292,6 +295,7 @@ class RewardPlot(Plot):
 
 
 class PlotHelp(views.ColumnTextModel):
+  """Displays help for navigating observation plots."""
 
   def __init__(self) -> None:
     self._value = [['Plot', ''], ['Next observation', 'F4'],
@@ -302,6 +306,7 @@ class PlotHelp(views.ColumnTextModel):
 
 
 class ApplicationWithPlot(application.Application):
+  """Extends the ``dm_control`` viewer to show live plots."""
 
   def __init__(self, title='Explorer', width=1024, height=768):
     super().__init__(title, width, height)

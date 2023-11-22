@@ -2,7 +2,6 @@
 import logging
 import threading
 import time
-from typing import List
 
 import numpy as np
 import panda_py
@@ -14,13 +13,15 @@ from dm_robotics.moma.models.robots.robot_arms import robot_arm
 from dm_robotics.moma.sensors import robot_arm_sensor
 from panda_py import controllers, libfranka
 
-from . import arm, arm_constants, gripper, gripper_constants
+from . import arm as arm_module
+from . import arm_constants
+from . import gripper as gripper_module
 from . import parameters as params
 
 log = logging.getLogger("hardware")
 
 
-class ArmEffector(arm.ArmEffector):
+class ArmEffector(arm_module.ArmEffector):
   """Panda hardware version of the ArmEffector."""
 
   def __init__(self, robot_params: params.RobotParams, arm: robot_arm.RobotArm,
@@ -30,6 +31,10 @@ class ArmEffector(arm.ArmEffector):
     self.init_hardware(robot_params)
 
   def init_hardware(self, robot_params: params.RobotParams) -> None:
+    """Initialize the hardware.
+    
+    Initializes the necessary controllers based on actuation mode and
+    moves the robot into the initial joint positions."""
     if not self.hardware.move_to_joint_position(robot_params.joint_positions):
       raise RuntimeError('Failed to reach initial robot joint positions.')
     self.actuation = robot_params.actuation
@@ -64,6 +69,7 @@ class ArmEffector(arm.ArmEffector):
     self.hardware.stop_controller()
 
   def fdir(self) -> None:
+    """Error detection and recovery."""
     try:
       self.hardware.raise_error()
     except RuntimeError as e:
@@ -88,15 +94,15 @@ class RobotArmSensor(robot_arm_sensor.RobotArmSensor):
     self._arm.set_joint_angles(physics, self._joint_pos(physics))
 
   def _joint_pos(self, physics: mjcf.Physics) -> np.ndarray:
-    physics_actuators = physics.bind(self._arm._actuators)
+    physics_actuators = physics.bind(self._arm.actuators)
 
-    if self._arm._actuation in [
+    if self._arm.actuation in [
         arm_constants.Actuation.CARTESIAN_VELOCITY,
         arm_constants.Actuation.JOINT_VELOCITY
     ]:
       # physics_actuators.act[:] = self.hardware.get_state().q
       self._arm.set_joint_angles(physics, self.hardware.q)
-    elif self._arm._actuation == arm_constants.Actuation.HAPTIC:
+    elif self._arm.actuation == arm_constants.Actuation.HAPTIC:
       physics_actuators.ctrl[:] = self.hardware.get_state().q
     return physics.bind(self._arm.joints).qpos
 
@@ -111,10 +117,10 @@ class RobotArmSensor(robot_arm_sensor.RobotArmSensor):
     return physics.bind(self._arm.joint_torque_sensors).sensordata[2::3]
 
 
-class ExternalWrenchObserver(arm.ExternalWrenchObserver):
+class ExternalWrenchObserver(arm_module.ExternalWrenchObserver):
   """Reads the Panda robot's estimate of external wrenches."""
 
-  def __init__(self, robot_params: params.RobotParams, arm: arm.Panda,
+  def __init__(self, robot_params: params.RobotParams, arm: arm_module.Panda,
                arm_sensor: RobotArmSensor, hardware: panda_py.Panda) -> None:
     super().__init__(robot_params, arm, arm_sensor)
     self.hardware = hardware
@@ -139,10 +145,12 @@ class ExternalWrenchObserver(arm.ExternalWrenchObserver):
     self.hardware.stop_controller()
 
 
-class PandaHandSensor(gripper.PandaHandSensor):
+class PandaHandSensor(gripper_module.PandaHandSensor):
+  """Hardware version of PandaHandSensor."""
 
   def __init__(self, robot_params: params.RobotParams,
-               gripper: gripper.PandaHand, hardware: libfranka.Gripper) -> None:
+               gripper: gripper_module.PandaHand,
+               hardware: libfranka.Gripper) -> None:
     super().__init__(gripper, f'{robot_params.name}_gripper')
     self.hardware = hardware
     self.__width = 0.08
@@ -166,7 +174,8 @@ class PandaHandSensor(gripper.PandaHandSensor):
     self.thread.join()
 
 
-class PandaHandEffector(gripper.PandaHandEffector):
+class PandaHandEffector(gripper_module.PandaHandEffector):
+  """Hardware version of PandaHandEffector."""
 
   def __init__(self, robot_params: params.RobotParams,
                gripper: robot_hand.RobotHand,
@@ -212,25 +221,24 @@ def build_robot(robot_params: params.RobotParams) -> robot.Robot:
       [100.0, 100.0, 100.0, 100.0, 100.0, 100.0])
 
   robot_sensors = []
-  panda = arm.Panda(actuation=robot_params.actuation,
-                    name=robot_params.name,
-                    hardware=hardware_panda)
+  panda = arm_module.Panda(actuation=robot_params.actuation,
+                           name=robot_params.name,
+                           hardware=hardware_panda)
   arm_sensor = RobotArmSensor(robot_params, panda, hardware_panda)
 
   ns_gripper = f'{robot_params.name}_hand'
   if robot_params.has_hand:
     hardware_gripper = libfranka.Gripper(robot_params.robot_ip)
-    _gripper = gripper.PandaHand(name=ns_gripper)
-    panda_hand_sensor = PandaHandSensor(robot_params, _gripper,
-                                        hardware_gripper)
+    gripper = gripper_module.PandaHand(name=ns_gripper)
+    panda_hand_sensor = PandaHandSensor(robot_params, gripper, hardware_gripper)
     robot_sensors.append(panda_hand_sensor)
-    gripper_effector = PandaHandEffector(robot_params, _gripper,
+    gripper_effector = PandaHandEffector(robot_params, gripper,
                                          panda_hand_sensor, hardware_gripper)
   else:
-    _gripper = gripper.DummyHand(name=ns_gripper)
+    gripper = gripper_module.DummyHand(name=ns_gripper)
     gripper_effector = None
 
-  tcp_sensor = arm.RobotTCPSensor(_gripper, robot_params)
+  tcp_sensor = arm_module.RobotTCPSensor(gripper, robot_params)
   robot_sensors.extend([
       ExternalWrenchObserver(robot_params, panda, arm_sensor, hardware_panda),
       tcp_sensor, arm_sensor
@@ -242,15 +250,13 @@ def build_robot(robot_params: params.RobotParams) -> robot.Robot:
     _arm_effector = ArmEffector(robot_params, panda, hardware_panda)
   elif robot_params.actuation == arm_constants.Actuation.CARTESIAN_VELOCITY:
     joint_velocity_effector = ArmEffector(robot_params, panda, hardware_panda)
-    _arm_effector = arm.Cartesian6dVelocityEffector(robot_params, panda,
-                                                    _gripper,
-                                                    joint_velocity_effector,
-                                                    tcp_sensor)
+    _arm_effector = arm_module.Cartesian6dVelocityEffector(
+        robot_params, panda, gripper, joint_velocity_effector, tcp_sensor)
 
-  robot.standard_compose(panda, _gripper)
+  robot.standard_compose(panda, gripper)
   moma_robot = robot.StandardRobot(arm=panda,
                                    arm_base_site_name=panda.base_site.name,
-                                   gripper=_gripper,
+                                   gripper=gripper,
                                    robot_sensors=robot_sensors,
                                    arm_effector=_arm_effector,
                                    gripper_effector=gripper_effector)
