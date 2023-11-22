@@ -23,9 +23,8 @@ class PandaEnvironment:
   """Adds Panda robots to an arena and creates a subtask environment."""
 
   def __init__(self,
-               robot_params: Union[
-                   params.RobotParams,
-                   Sequence[params.RobotParams]] = params.RobotParams(),
+               robot_params: Union[params.RobotParams,
+                                   Sequence[params.RobotParams]],
                arena: composer.Arena = empty.Arena(),
                control_timestep: float = 0.1,
                physics_timestep: float = 0.002) -> None:

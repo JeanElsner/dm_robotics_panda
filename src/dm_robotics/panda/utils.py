@@ -193,12 +193,10 @@ class ObservationPlot(Plot):
       lines = np.atleast_1d(obs).shape[0]
       if lines > self.maxlines:
         self.maxlines = lines
-    print(self._obs_keys)
     for _1 in range(self.maxlines):
       self.y.append(deque(maxlen=self.maxlen))
     self.reset_data()
     self._obs_idx = 0
-    # self._obs_keys = list(self._rt._time_step.observation.keys())
     self.update_title()
 
   def update_title(self):
