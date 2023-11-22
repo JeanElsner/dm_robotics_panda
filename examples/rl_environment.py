@@ -1,6 +1,4 @@
 """ Minimal working example of the dm_robotics Panda model. """
-import typing
-
 import dm_env
 import numpy as np
 from dm_control import mjcf
@@ -51,15 +49,7 @@ class Ball(prop.Prop):
              solref=[0.01, 0.5],
              mass=1,
              rgba=(1, 0, 0, 1))
-    super()._build('goal', mjcf_root)
-
-  def set_pose(self,
-               physics: mjcf.Physics,
-               position: np.ndarray,
-               quaternion: np.ndarray,
-               random_state: typing.Optional[np.random.RandomState] = None):
-    del random_state
-    super().set_pose(physics, position, quaternion)
+    super()._build('ball', mjcf_root)
 
 
 def goal_reward(observation: spec_utils.ObservationValue):
@@ -107,17 +97,20 @@ if __name__ == '__main__':
       goal_reward,
       validation_frequency=timestep_preprocessor.ValidationFrequency.ALWAYS)
 
+  # Instantiate props
+  ball = Ball()
+  props = [ball]
+  for i in range(10):
+    props.append(rgb_object.RandomRgbObjectProp(color=(.5, .5, .5, 1)))
+
   # Extra camera sensor that adds camera observations including rendered images.
   cam_sensor = camera_sensor.CameraImageSensor(
       panda_env.robots[robot_params.name].gripper.mjcf_model.find(
           'camera', 'wrist_camera'), camera_sensor.CameraConfig(has_depth=True),
       'wrist_cam')
 
-  # Instantiate props
-  ball = Ball()
-  props = [ball]
-  for i in range(5):
-    props.append(rgb_object.RandomRgbObjectProp(color=(.5, .5, .5, 1)))
+  # Extra prop sensor to add ball pose to observation.
+  goal_sensor = prop_pose_sensor.PropPoseSensor(ball, 'goal')
 
   # Props need to be added to the environment before instantiating the prop initializer.
   panda_env.add_props(props)
@@ -126,16 +119,18 @@ if __name__ == '__main__':
   # positions and uniformly distributed random quaternion samples for orientation. The initializer
   # by default keeps sampling poses for props until a collision-free pose is found.
   initialize_props = entity_initializer.prop_initializer.PropPlacer(
-      props, distributions.Uniform(-.5, .5), rotations.UniformQuaternion())
+      props,
+      position=distributions.Uniform(-.5, .5),
+      quaternion=rotations.UniformQuaternion())
 
   panda_env.add_timestep_preprocessors([reward])
   panda_env.add_entity_initializers([
       initialize_arm,
       initialize_props,
   ])
+
   # Extra sensors include a camera sensor as well as a pose sensor for the ball.
-  panda_env.add_extra_sensors(
-      [cam_sensor, prop_pose_sensor.PropPoseSensor(ball, 'goal')])
+  panda_env.add_extra_sensors([cam_sensor, goal_sensor])
 
   with panda_env.build_task_environment() as env:
     # Print the full action, observation and reward specification
