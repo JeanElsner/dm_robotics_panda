@@ -397,56 +397,6 @@ class ArmEffector(arm_effector.ArmEffector):
     return super().action_spec(physics)
 
 
-class WrenchEffector(ArmEffector):
-  """Uses the torque actuation of the robot to apply a wrench feed-forward term."""
-  _jac_pos: np.ndarray
-  _jac_rot: np.ndarray
-  _dof_indices: Sequence[int]
-  _site_id: int
-
-  def __init__(self, robot_params: params.RobotParams, arm: robot_arm.RobotArm):
-    super().__init__(robot_params, arm)
-    self._spec = None
-    self._frame = robot_params.control_frame
-
-  def after_compile(self, mjcf_model: mjcf.RootElement,
-                    physics: mjcf.Physics) -> None:
-    super().after_compile(mjcf_model, physics)
-    indexer = physics.named.model.dof_jntid.axes.row
-    self._dof_indices = indexer.convert_key_item(
-        [j.full_identifier for j in self._arm.joints])
-    jac = np.empty((6, physics.model.nv))
-    self._jac_pos, self._jac_rot = jac[:3], jac[3:]
-    self._site_id = physics.model.name2id(self._arm.wrist_site.full_identifier,
-                                          'site')
-
-  def action_spec(self, physics: mjcf.Physics) -> specs.BoundedArray:
-    if self._spec is None:
-      self._spec = specs.BoundedArray((
-          6,
-      ), np.float32, -50 * np.ones(6), 50 * np.ones(6), '\t'.join([
-          f'{self.prefix}_{c}' for c in
-          ['force_x', 'force_y', 'force_z', 'torque_x', 'torque_y', 'torque_z']
-      ]))
-    return self._spec
-
-  def set_control(self, physics: mjcf.Physics, command: np.ndarray) -> None:
-    """Sets a 6 DoF wrench command for the current timestep."""
-    super().set_control(physics, self._project_wrench(command, physics))
-
-  def _project_wrench(self, wrench: np.ndarray,
-                      physics: mjcf.Physics) -> np.ndarray:
-    wrench = geometry.WrenchStamped(wrench, None).get_relative_wrench(
-        self._frame, mujoco_physics.wrap(physics)).full
-    mujoco.mj_jacSite(physics.model.ptr, physics.data.ptr, self._jac_pos,
-                      self._jac_rot, self._site_id)
-    f = self._jac_pos[:, self._dof_indices].T @ wrench[:3]
-    tau = self._jac_rot[:, self._dof_indices].T @ wrench[3:6]
-    torque = np.clip(f + tau, consts.EFFORT_LIMITS['min'],
-                     consts.EFFORT_LIMITS['max'])
-    return torque.astype(np.float32)
-
-
 @enum.unique
 class ControlObservations(enum.Enum):
   """Observations exposed by this sensor in control frame."""
