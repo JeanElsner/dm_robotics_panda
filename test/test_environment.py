@@ -1,4 +1,4 @@
-from dm_robotics.panda import environment, parameters
+from dm_robotics.panda import environment, parameters, utils
 
 
 def test_robots():
@@ -15,5 +15,5 @@ def test_robots():
 
 def test_build():
   with environment.PandaEnvironment(
-      parameters.RobotParams()).build_task_environment():
-    pass
+      parameters.RobotParams()).build_task_environment() as env:
+    utils.full_spec(env)
