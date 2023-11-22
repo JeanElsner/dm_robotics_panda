@@ -26,6 +26,14 @@ extensions = [
     'sphinx_reredirects',
 ]
 
+# autoclass_content = 'both'
+autodoc_default_options = {
+    'members': True,
+    'member-order': 'alphabetical',
+    'special-members': '__init__',
+    'undoc-members': True,
+}
+
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
