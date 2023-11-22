@@ -9,7 +9,7 @@
 project = 'dm-robotics-panda'
 copyright = '2023, Jean Elsner'
 author = 'Jean Elsner'
-release = '0.3.2'
+release = '0.3.3'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
