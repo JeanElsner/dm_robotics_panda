@@ -41,7 +41,13 @@ def test_plots(mock_runtime, mock_context, mock_viewport):
   with patch('mujoco.mjr_figure') as mock_mjr_figure:
     obs = utils.ObservationPlot(mock_runtime)
     obs.render(mock_context, mock_viewport)
+    obs.next_obs()
+    obs.prev_obs()
     action = utils.ActionPlot(mock_runtime)
     action.render(mock_context, mock_viewport)
     reward = utils.RewardPlot(mock_runtime)
     reward.render(mock_context, mock_viewport)
+
+
+def test_logging():
+  utils.init_logging()
