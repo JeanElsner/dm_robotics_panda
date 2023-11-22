@@ -1,10 +1,4 @@
-"""RL environment builder for the Panda MoMa model.
-  This module allows you to build a full RL environment,
-  including fully configured arena, initializers, robot and task.
-  As such it can be considered the main module for users to
-  interact with. The default configuration is a ready to run
-  `dm_control.rl.control.Environment` but all aspects like e.g.
-  reward, observation and action spec can be fully customized."""
+"""RL environment builder for the Panda MoMa model."""
 import collections
 import dataclasses
 import typing

@@ -1,6 +1,4 @@
-"""
-Produces a joint motion using the joint velocity actuation mode.
-"""
+"""Produces a joint motion using the joint velocity actuation mode."""
 import dm_env
 import numpy as np
 from dm_env import specs
@@ -11,17 +9,13 @@ from dm_robotics.panda import run_loop, utils
 
 
 class Agent:
-  """
-  This agent produces a sinusoidal joint movement.
-  """
+  """This agent produces a sinusoidal joint movement."""
 
   def __init__(self, spec: specs.BoundedArray) -> None:
     self._spec = spec
 
   def step(self, timestep: dm_env.TimeStep) -> np.ndarray:
-    """
-    Computes sinusoidal joint velocities.
-    """
+    """Computes sinusoidal joint velocities."""
     time = timestep.observation['time'][0]
     action = 0.1 * np.sin(
         np.ones(shape=self._spec.shape, dtype=self._spec.dtype) * time)

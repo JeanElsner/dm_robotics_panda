@@ -1,5 +1,4 @@
-"""
-Demo of the haptic actuation mode.
+"""Demo of the haptic actuation mode.
 
 The haptic actuation mode allows you to use a Panda robot
 to physically interact with a simulation in real-time.
@@ -17,16 +16,13 @@ from dm_robotics.panda import utils
 
 
 class Agent:
-  """
-  There is no action required in haptic mode, i.e. this
-  agent does nothing.
-  """
+  """There is no action required in haptic mode, i.e. this agent does nothing."""
 
   def __init__(self, spec: specs.BoundedArray) -> None:
     self._spec = spec
 
   def step(self, timestep: dm_env.TimeStep) -> np.ndarray:
-    """ Provides robot actions every control-timestep. """
+    """Provides robot actions every control timestep."""
     del timestep  # not used
     action = np.zeros(shape=self._spec.shape, dtype=self._spec.dtype)
     return action

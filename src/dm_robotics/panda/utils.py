@@ -21,7 +21,7 @@ from dm_robotics.transformations import transformations as tr
 
 
 def full_spec(env: control.Environment):
-  """ Prints the full specification of the environment, i.e.
+  """Prints the full specification of the environment, i.e.
   action, observation and reward spec."""
   print(f'Action spec: {env.action_spec()}')
   print('Observation spec:')
@@ -55,7 +55,7 @@ def default_arg_parser(desc: str = 'dm_robotics_panda',
 
 
 class Formatter(logging.Formatter):
-  """ Logging formatter for the Panda MoMa model. """
+  """Logging formatter for the Panda MoMa model."""
 
   def format(self, record: logging.LogRecord) -> str:
     msg = ''
@@ -85,7 +85,7 @@ class DuplicateFilter(logging.Filter):
 
 
 def init_logging() -> None:
-  """ Set the standard log format and handler. """
+  """Set the standard log format and handler."""
   for h in logging.root.handlers[:]:
     logging.root.removeHandler(h)
     h.close()
@@ -100,7 +100,7 @@ def init_logging() -> None:
 
 def set_joint_stiffness(stiffness: Sequence[float], arm: robot.Arm,
                         physics: mjcf.Physics):
-  """ Update the joint actuation stiffness of the robot arm. """
+  """Update the joint actuation stiffness of the robot arm."""
   physics_actuators = physics.bind(arm.actuators)
   physics_actuators.gainprm[:, 0] = stiffness
   physics_actuators.biasprm[:, 1] = -np.array(stiffness)
@@ -108,7 +108,7 @@ def set_joint_stiffness(stiffness: Sequence[float], arm: robot.Arm,
 
 def set_joint_damping(damping: Sequence[float], arm: robot.Arm,
                       physics: mjcf.Physics):
-  """ Update the joint actuation damping of the robot arm. """
+  """Update the joint actuation damping of the robot arm."""
   physics_actuators = physics.bind(arm.actuators)
   physics_actuators.biasprm[:, 2] = -np.array(damping)
 
@@ -123,7 +123,7 @@ class TimeObservation(enum.Enum):
 
 
 class TimeSensor(sensor.Sensor):
-  """ MoMa sensor measuring simulation time. """
+  """MoMa sensor measuring simulation time."""
 
   def __init__(self) -> None:
     self._observables = {
@@ -174,8 +174,7 @@ class Plot(renderer.Component):
 
 
 class ObservationPlot(Plot):
-  """
-  Plotting component for :py:class:`dm_control.viewer.application.Application`
+  """Plotting component for :py:class:`dm_control.viewer.application.Application`
   that allows you to browse through the observations.
   """
 
@@ -235,8 +234,7 @@ class ObservationPlot(Plot):
 
 
 class ActionPlot(Plot):
-  """
-  A plotting component for :py:class:`dm_control.viewer.application.Application`
+  """A plotting component for :py:class:`dm_control.viewer.application.Application`
   that plots the agent's actions.
   """
 
@@ -267,8 +265,7 @@ class ActionPlot(Plot):
 
 
 class RewardPlot(Plot):
-  """
-  A plotting component for :py:class:`dm_control.viewer.application.Application`
+  """A plotting component for :py:class:`dm_control.viewer.application.Application`
   that plots the environment's reward.
   """
 

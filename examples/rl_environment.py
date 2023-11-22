@@ -1,4 +1,4 @@
-""" Minimal working example of the dm_robotics Panda model. """
+"""Complete reinforcement-learning environment example."""
 import dm_env
 import numpy as np
 from dm_control import mjcf

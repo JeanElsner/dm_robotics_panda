@@ -131,7 +131,7 @@ class Panda(robot_arm.RobotArm):
   def base_site(self) -> types.MjcfElement:
     """Get the MuJoCo site of the base.
 
-    Return:
+    Returns:
       MuJoCo site
     """
     return self._base_site
@@ -235,7 +235,6 @@ class Panda(robot_arm.RobotArm):
         zip(consts.EFFORT_LIMITS['min'], consts.EFFORT_LIMITS['max']))
 
     def add_actuator(i: int) -> types.MjcfElement:
-      """Add an actuator."""
       params = _PANDA_ACTUATOR_PARAMS[self._actuation][i]
       actuator = self._mjcf_root.actuator.add('general',
                                               name=f'j{i}',
@@ -254,7 +253,7 @@ class Panda(robot_arm.RobotArm):
 
 
 class ExternalWrenchObserver(sensor.Sensor):
-  """ Estimates external wrench based on torque sensor signal """
+  """Estimates external wrench based on torque sensor signal."""
   _jac_pos: np.ndarray
   _jac_rot: np.ndarray
   _dof_indices: Sequence[int]
@@ -363,16 +362,20 @@ class Cartesian6dVelocityEffector(
 
 
 class ArmEffector(arm_effector.ArmEffector):
-  """Robot arm effector for the Panda MoMa model that takes
-  :py:class:`dm_robotics.panda.parameters.RobotParams`
+  """Robot arm effector for the Panda MoMa model.
+  
+  Takes :py:class:`dm_robotics.panda.parameters.RobotParams`
   and changes the joint stiffness and damping of the robot arm. Otherwise behaves
-  likes :py:class:`dm_robotics.moma.effectors.arm_effector.ArmEffector`."""
+  like :py:class:`dm_robotics.moma.effectors.arm_effector.ArmEffector`.
+  """
 
   def __init__(self, robot_params: params.RobotParams, arm: robot_arm.RobotArm):
-    """
+    """Constructor.
+
     Args:
       robot_params: Dataclass containing robot parameters.
-      arm: The MoMa arm to control."""
+      arm: The MoMa arm to control.
+    """
     super().__init__(arm, None, robot_params.name)
     self._robot_params = robot_params
     self._empty_spec = specs.BoundedArray(shape=(0,),
@@ -469,18 +472,20 @@ class ControlObservations(enum.Enum):
 
 class RobotTCPSensor(site_sensor.SiteSensor):
   """Version of `dm_robotics.moma.sensors.site_sensor.SiteSensor` that
-    takes tool center point pose measurements of a gripper and accepts
-    `parameters.RobotParams` to optionally change the reference frame.
-    Otherwise behaves like a `SiteSensor`."""
+  takes tool center point pose measurements of a gripper and accepts
+  `parameters.RobotParams` to optionally change the reference frame.
+  Otherwise behaves like a `SiteSensor`.
+  """
 
   def __init__(self, gripper: robot_hand.AnyRobotHand,
                robot_params: params.RobotParams):
-    """Initialize `RobotTCPSensor`.
+    """Constructor.
 
-      Args:
-        gripper: This gripper's TCP site is used for the measurements.
+    Args:
+      gripper: This gripper's TCP site is used for the measurements.
         robot_params: Set the `control_frame` field to a site to use
-          as reference frame. Falls back to world frame if `None`."""
+        as reference frame. Falls back to world frame if `None`.
+    """
     super().__init__(gripper.tool_center_point, f'{robot_params.name}_tcp')
     self._frame = robot_params.control_frame
     self._observables.update({

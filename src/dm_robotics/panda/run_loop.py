@@ -1,5 +1,4 @@
-"""
-Simple run loop for an agent and environment.
+"""Simple run loop for an agent and environment.
 
 Extended to support real-time execution.
 """

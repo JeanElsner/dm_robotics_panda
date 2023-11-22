@@ -112,7 +112,7 @@ class RobotArmSensor(robot_arm_sensor.RobotArmSensor):
 
 
 class ExternalWrenchObserver(arm.ExternalWrenchObserver):
-  """Reads the Panda robot's estimate of external wrenches. """
+  """Reads the Panda robot's estimate of external wrenches."""
 
   def __init__(self, robot_params: params.RobotParams, arm: arm.Panda,
                arm_sensor: RobotArmSensor, hardware: panda_py.Panda) -> None:

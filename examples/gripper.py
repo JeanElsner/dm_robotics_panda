@@ -1,5 +1,4 @@
-"""
-Example demonstrating use of the Panda robot's gripper.
+"""Example demonstrating use of the Panda robot's gripper.
 
 The gripper's action space accepts one floating point number
 between 0 and 1 but internally maps those values to 0 if < 0.5 and 1 otherwise,
@@ -19,16 +18,13 @@ from dm_robotics.panda import run_loop, utils
 
 
 class Agent:
-  """
-  This agent controls the gripper with random actions.
-  """
+  """This agent controls the gripper with random actions."""
 
   def __init__(self, spec: specs.BoundedArray) -> None:
     self._spec = spec
 
   def step(self, timestep: dm_env.TimeStep) -> np.ndarray:
-    """
-    Every timestep, a new random gripper action is generated
+    """Every timestep, a new random gripper action is generated
     that would result in either an outward or inward grasp.
     However, the gripper only moves if 1) it is not already moving
     and 2) the new command is different from the last.

@@ -1,4 +1,4 @@
-""" Minimal working example of the dm_robotics Panda model. """
+"""Minimal working example of the dm_robotics Panda model."""
 import dm_env
 import numpy as np
 from dm_env import specs
@@ -9,7 +9,7 @@ from dm_robotics.panda import run_loop, utils
 
 
 class Agent:
-  """ Agents are used to control a robot's actions given
+  """Agents are used to control a robot's actions given
   current observations and rewards. This agent does nothing.
   """
 
@@ -17,7 +17,7 @@ class Agent:
     self._spec = spec
 
   def step(self, timestep: dm_env.TimeStep) -> np.ndarray:
-    """ Provides robot actions every control-timestep. """
+    """Provides robot actions every control timestep."""
     del timestep  # not used
     action = np.zeros(shape=self._spec.shape, dtype=self._spec.dtype)
     return action

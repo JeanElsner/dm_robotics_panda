@@ -10,8 +10,10 @@ XML_PATH = os.path.join(os.path.dirname(__file__), 'assets', 'panda',
 
 class Actuation(enum.Enum):
   """Available actuation methods for the Panda MoMa model.
-  The actuation methods use the joint stiffness and damping as
-  defined in :py:class:`dm_robotics.panda.parameters.RobotParams` where applicable."""
+
+  The actuation methods use the joint stiffness and damping as defined in
+  :py:class:`dm_robotics.panda.parameters.RobotParams` where applicable.
+  """
   CARTESIAN_VELOCITY = 0
   """Cartesian end-effector velocity control."""
   JOINT_VELOCITY = 1

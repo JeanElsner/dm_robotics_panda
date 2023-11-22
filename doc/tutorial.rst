@@ -76,7 +76,7 @@ an action (control signal) in the form of a NumPy array.
     Beware that the robot will try to move into the initial pose of the simulation. You can set the initial
     position by setting ``joint_positions`` in the robot parameters.
 
-    When running any of the examples
+    When running any of the examples,
     the action specification (shape) of the configured actuation mode along with the observation
     and reward specification will be printed in the terminal for convenience.
 
@@ -91,22 +91,18 @@ Joint velocity control is activated as part of the robot configuration.
    robot_params = params.RobotParams(actuation=arm_constants.Actuation.JOINT_VELOCITY)
 
 The action interface is a 7-vector where each component controls the corresponding joint's velocity.
-If the Panda gripper is used (default behavior) there is one editional component to control grasping.
+If the Panda gripper is used (default behavior) there is one additional component to control grasping.
 
 .. code:: python
 
    class Agent:
-   """
-   This agent produces a sinusoidal joint movement.
-   """
+   """This agent produces a sinusoidal joint movement."""
 
      def __init__(self, spec: specs.BoundedArray) -> None:
        self._spec = spec
 
      def step(self, timestep: dm_env.TimeStep) -> np.ndarray:
-       """
-       Computes sinusoidal joint velocities.
-       """
+       """Computes sinusoidal joint velocities."""
        time = timestep.observation['time'][0]
        action = 0.1 * np.sin(
            np.ones(shape=self._spec.shape, dtype=self._spec.dtype) * time)
@@ -141,8 +137,7 @@ the world frame is used as a reference.
 .. code:: python
 
    class Agent:
-     """
-     The agent produces a trajectory tracing the path of an eight
+     """The agent produces a trajectory tracing the path of an eight
      in the x/y control frame of the robot using end-effector velocities.
      """
 
@@ -150,9 +145,7 @@ the world frame is used as a reference.
        self._spec = spec
 
      def step(self, timestep: dm_env.TimeStep) -> np.ndarray:
-       """
-       Computes velocities in the x/y plane parameterized in time.
-       """
+       """Computes velocities in the x/y plane parameterized in time."""
        time = timestep.observation['time'][0]
        r = 0.1
        vel_x = r * math.cos(time)  # Derivative of x = sin(t)
@@ -199,16 +192,13 @@ to illustrate the gripper's behavior.
 .. code:: python
 
    class Agent:
-     """
-     This agent controls the gripper with random actions.
-     """
+     """This agent controls the gripper with random actions."""
 
      def __init__(self, spec: specs.BoundedArray) -> None:
        self._spec = spec
 
      def step(self, timestep: dm_env.TimeStep) -> np.ndarray:
-       """
-       Every timestep, a new random gripper action is generated
+       """Every timestep, a new random gripper action is generated
        that would result in either an outward or inward grasp.
        However, the gripper only moves if 1) it is not already moving
        and 2) the new command is different from the last.
