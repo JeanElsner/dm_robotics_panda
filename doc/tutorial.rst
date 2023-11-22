@@ -73,10 +73,13 @@ an action (control signal) in the form of a NumPy array.
     The examples in this section support optional hardware in the loop (HIL) mode. You can run the examples
     with HIL by executing the files with the ``--robot-ip`` option set to the hostname or IP address
     of a robot connected to the host computer. This option can be combined with ``--gui`` for visualization.
+    Beware that the robot will try to move into the initial pose of the simulation. You can set the initial
+    position by setting ``joint_positions`` in the robot parameters.
 
     When running any of the examples
     the action specification (shape) of the configured actuation mode along with the observation
     and reward specification will be printed in the terminal for convenience.
+
 
 Joint
 ^^^^^
@@ -134,11 +137,6 @@ The effector's (controller's) action space consists of a 6-vector where the firs
 correspond to the desired end-effector velocity along the control frame's x-, y-, and z-axis. The
 latter three indices define the angular velocities respectively. If no control frame is configured,
 the world frame is used as a reference.
-
-.. todo::
-
-   Refer to a section explaining control frames and their use in detail.
-
 
 .. code:: python
 
@@ -323,10 +321,182 @@ body to rotate it, while the motion remains invariant.
 
 .. youtube:: cAUjkhrBmN4
 
+RL Environment
+--------------
+
+This section briefly introduces some of the key concepts of designing a reinforcement learning
+environment in the ``dm_robotics`` framework and illustrates how to integrate these with
+``dm_robotics_panda``. This section is implemented in ``examples/rl_environment.py``.
+
+
+Props
+^^^^^
+
+Props are dynamic objects in the environment that can be manipulated. They are based on MuJoCo
+elements that are built by the prop's class and attached to the scene.
+
+.. code:: python
+
+   class Ball(prop.Prop):
+     """Simple ball prop that consists of a MuJoco sphere geom."""
+
+     def _build(self, *args, **kwargs):
+       del args, kwargs
+       mjcf_root = mjcf.RootElement()
+       # Props need to contain a body called prop_root
+       body = mjcf_root.worldbody.add('body', name='prop_root')
+       body.add('geom',
+                type='sphere',
+                size=[0.04],
+                solref=[0.01, 0.5],
+                mass=1,
+                rgba=(1, 0, 0, 1))
+       super()._build('ball', mjcf_root)
+
+The code above defines a new prop class. A minimal prop implementation needs to overwrite the
+``_build`` function to construct an MJCF root element that has at least a body called ``prop_root``
+attached. The positional and keyword arguments passed to the ``_build`` function are the same
+as the constructor's, but it's not recommended to overwrite the constructor itself. To attach
+props, we simply instantiate them and add them to :py:class:`dm_robotics.panda.environment.PandaEnvironment`.
+
+.. code:: python
+
+   ball = Ball()
+   props = [ball]
+   for i in range(10):
+     props.append(rgb_object.RandomRgbObjectProp(color=(.5, .5, .5, 1)))
+
+   panda_env.add_props(props)
+
+In the code snippet above, in addition to the ball, we add 10 random props from the RGB object family
+that is part of ``dm_robotics.manipulation``.
+
+Cameras
+^^^^^^^
+
+Cameras are modelled in MuJoCo directly. This can be done in an MJCF file as part of the environment
+description and loaded from file as an arena. Alternatively, camera elements can be added through code.
+The latter allows us to attach cameras to the robots as well.
+
+.. code:: python
+
+   # Use the robot added by PandaEnvironment to add a MuJoCo camera element to the gripper.
+   panda_env.robots[robot_params.name].gripper.tool_center_point.parent.add(
+       'camera',
+       pos=(.1, 0, -.1),
+       euler=(180, 0, -90),
+       fovy=90,
+       name='wrist_camera')
+
+The camera element is attached to the parent body of the tool center point as cameras cannot
+be child elements of site elements. The pose relative to the parent (in this case the wrist)
+is chosen so the camera looks along the end-effector. We can use this camera in the visualization
+app, to render out images from code, or to add images to the observation.
 
 Reward and Observation
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
+
+An environment's reward and observation are conferred as part of the timestep.
+In the ``dm_robotics`` framework the timestep may be modified by timestep preprocessors
+to add or modify rewards and observations. There are many timestep preprocessors as part
+of the framework that cover common applications. While timestep preprocessors can add
+arbitrary observations to a timestep, MoMa sensors may also add observations related to
+MuJoCo model elements such as cameras or props.
+
+.. code:: python
+
+   # Extra camera sensor that adds camera observations including rendered images.
+   cam_sensor = camera_sensor.CameraImageSensor(
+       panda_env.robots[robot_params.name].gripper.mjcf_model.find(
+           'camera', 'wrist_camera'), camera_sensor.CameraConfig(has_depth=True),
+       'wrist_cam')
+
+   # Extra prop sensor to add ball pose to observation.
+   goal_sensor = prop_pose_sensor.PropPoseSensor(ball, 'goal')
+
+   panda_env.add_extra_sensors([cam_sensor, goal_sensor])
+
+We make use of MoMa sensors to add camera and prop observations to the timestep. The camera sensor
+takes a camera element and configuration and adds rendered images as well as the camera's instrinsic
+parameters with the prefix ``wrist_cam`` to the observation. Similarly the prop sensor takes a prop
+and adds a pose observation with the prefix ``goal``.
+
+Keep in mind that we used MoMa sensors to add fitting observations for convenience. You are free to
+implement your own preprocessors to manipulate the timestep as you see fit. Next we will make use of
+predefined timestep preprocessors to add a reward.
+
+.. code:: python
+
+   def goal_reward(observation: spec_utils.ObservationValue):
+     """Computes a normalized reward based on distance between end-effector and goal."""
+     goal_distance = np.linalg.norm(observation['goal_pose'][:3] -
+                                    observation['panda_tcp_pos'])
+     return np.clip(1.0 - goal_distance, 0, 1)
+
+   reward = rewards.ComputeReward(
+       goal_reward,
+       validation_frequency=timestep_preprocessor.ValidationFrequency.ALWAYS)
+
+   panda_env.add_timestep_preprocessors([reward])
+
+``ComputeReward`` is a timestep preprocessor that computes a reward based on a callable that takes
+an observation and returns a scalar which is added to the timestep. The callable ``goal_reward``
+computes a reward based on the distance between the robot's end-effector and the ball's pose
+observation which we added above. This reward is computed for every timestep. Alternatively rewards
+may also be computed only at the end of an epiode.
 
 
 Domain Randomization
---------------------
+^^^^^^^^^^^^^^^^^^^^
+
+The ``dm_robotics`` framework includes several tools for domain randomization.
+These can be implemented as scene and entity initializers. The former is executed
+before the model is compiled and the latter afterwards. As such, scene initializers
+can be used to change the MJCF itself and entity initializers are used to change the
+initial state of the model.
+
+.. note::
+
+   While your are free to implement your own initializers by extending
+   :py:class:`dm_robotics.moma.base_task.SceneInitializer` and
+   :py:class:`dm_robotics.moma.entity_initializer.base_initializer.Initializer`.
+   In this section we demonstrate the principle by using existing initializers.
+
+.. code:: python
+
+   initialize_props = entity_initializer.prop_initializer.PropPlacer(
+       props,
+       position=distributions.Uniform(-.5, .5),
+       quaternion=rotations.UniformQuaternion())
+
+The prop placer is an entity initializer that places multiple props around the environment.
+The initializer takes variation objects to determine the Cartesian position and orientation
+of the props. In the example above we use uniform distributions that are sampled by the
+initializer to randomly place the props. Additionally, the initializer places the props in
+a way that they do not collide with the environment.
+
+.. code:: python
+
+   # Uniform distribution of 6D poses within the given bounds.
+   gripper_pose_dist = pose_distribution.UniformPoseDistribution(
+       min_pose_bounds=np.array(
+           [0.5, -0.3, 0.7, .75 * np.pi, -.25 * np.pi, -.25 * np.pi]),
+       max_pose_bounds=np.array(
+           [0.1, 0.3, 0.1, 1.25 * np.pi, .25 * np.pi / 2, .25 * np.pi]))
+   # The pose initializer uses the robot arm's position_gripper function
+   # to set the end-effector pose from the distribution above.
+   initialize_arm = entity_initializer.PoseInitializer(
+       panda_env.robots[robot_params.name].position_gripper,
+       gripper_pose_dist.sample_pose)
+
+The pose initializer sets the pose of a single entity by first calling a sampler callable to
+retrieve a pose and then a second callable to set the pose. We can make use of this to sample
+random Cartesian 6D poses within bounds from ``UniformPoseDistribution`` and then apply those
+poses to the end-effector by using :py:func:`dm_robotics.panda.arm.Arm.position_gripper` to
+position the arm accordingly with inverse kinematics.
+
+Finally, the example is demonstrated in the video below. Note that you can reset the episode
+in the visualization app by pressing `backspace`. For more information on how to interact with
+the app Press `F1` to view a help screen.
+
+.. youtube:: Ivsn5uA3xYE
