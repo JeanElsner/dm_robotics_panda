@@ -1,3 +1,4 @@
+import logging
 from unittest.mock import MagicMock, patch
 
 import mujoco
@@ -51,3 +52,58 @@ def test_plots(mock_runtime, mock_context, mock_viewport):
 
 def test_logging():
   utils.init_logging()
+
+
+def test_formatter_warning():
+  formatter = utils.Formatter()
+
+  record = logging.LogRecord(name='test_logger',
+                             level=logging.WARNING,
+                             pathname='/path/to/module.py',
+                             lineno=42,
+                             msg='This is a warning message',
+                             args=(),
+                             exc_info=None)
+
+  formatted_msg = formatter.format(record)
+
+  # Check if the formatted message contains the ANSI escape code for yellow color
+  assert '\033[33m' in formatted_msg
+  # Check if the formatted message ends with the ANSI escape code for resetting color
+  assert formatted_msg.endswith('\033[0m')
+
+
+def test_formatter_error():
+  formatter = utils.Formatter()
+
+  record = logging.LogRecord(name='test_logger',
+                             level=logging.ERROR,
+                             pathname='/path/to/module.py',
+                             lineno=42,
+                             msg='This is an error message',
+                             args=(),
+                             exc_info=None)
+
+  formatted_msg = formatter.format(record)
+
+  # Check if the formatted message contains the ANSI escape code for red color
+  assert '\033[31m' in formatted_msg
+  # Check if the formatted message ends with the ANSI escape code for resetting color
+  assert formatted_msg.endswith('\033[0m')
+
+
+def test_formatter_info():
+  formatter = utils.Formatter()
+
+  record = logging.LogRecord(name='test_logger',
+                             level=logging.INFO,
+                             pathname='/path/to/module.py',
+                             lineno=42,
+                             msg='This is an info message',
+                             args=(),
+                             exc_info=None)
+
+  formatted_msg = formatter.format(record)
+
+  assert '\033[33m' not in formatted_msg
+  assert '\033[31m' not in formatted_msg

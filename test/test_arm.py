@@ -1,11 +1,8 @@
-from unittest import mock
-
 import numpy as np
-import pytest
 from dm_control import mjcf
 from numpy import testing
 
-from dm_robotics.panda import arm, parameters
+from dm_robotics.panda import arm, arm_constants, parameters
 
 
 def test_physics_step():
@@ -30,3 +27,13 @@ def test_arm_effector():
   physics = mjcf.Physics.from_mjcf_model(robot.mjcf_model)
   effector = arm.ArmEffector(robot_params, robot)
   effector.set_control(physics, np.zeros(7, dtype=np.float32))
+  effector.close()
+
+
+def test_arm_haptic():
+  robot = arm.Panda()
+  robot_params = parameters.RobotParams(
+      actuation=arm_constants.Actuation.HAPTIC)
+  physics = mjcf.Physics.from_mjcf_model(robot.mjcf_model)
+  effector = arm.ArmEffector(robot_params, robot)
+  effector.set_control(physics, np.zeros(0, dtype=np.float32))
