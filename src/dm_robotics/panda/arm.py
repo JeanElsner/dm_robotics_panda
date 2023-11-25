@@ -491,16 +491,21 @@ def build_robot(robot_params: params.RobotParams) -> robot.Robot:
 
   ns_gripper = f'{robot_params.name}_gripper'
   if robot_params.has_hand:
-    _gripper = gripper_module.PandaHand(name=ns_gripper)
-    panda_hand_sensor = gripper_module.PandaHandSensor(_gripper, ns_gripper)
+    gripper = gripper_module.PandaHand(name=ns_gripper)
+    panda_hand_sensor = gripper_module.PandaHandSensor(gripper, ns_gripper)
     robot_sensors.append(panda_hand_sensor)
-    gripper_effector = gripper_module.PandaHandEffector(robot_params, _gripper,
+    gripper_effector = gripper_module.PandaHandEffector(robot_params, gripper,
                                                         panda_hand_sensor)
+  elif robot_params.gripper is not None:
+    gripper = robot_params.gripper.model
+    if robot_params.gripper.sensors is not None:
+      robot_sensors.extend(robot_params.gripper.sensors)
+    gripper_effector = robot_params.gripper.effector
   else:
-    _gripper = gripper_module.DummyHand(name=ns_gripper)
+    gripper = gripper_module.DummyHand(name=ns_gripper)
     gripper_effector = None
 
-  tcp_sensor = RobotTCPSensor(_gripper, robot_params)
+  tcp_sensor = RobotTCPSensor(gripper, robot_params)
   robot_sensors.extend([
       ExternalWrenchObserver(robot_params, arm, arm_sensor), tcp_sensor,
       arm_sensor
@@ -513,14 +518,14 @@ def build_robot(robot_params: params.RobotParams) -> robot.Robot:
     _arm_effector = ArmEffector(robot_params, arm)
   elif robot_params.actuation == consts.Actuation.CARTESIAN_VELOCITY:
     joint_velocity_effector = ArmEffector(robot_params, arm)
-    _arm_effector = Cartesian6dVelocityEffector(robot_params, arm, _gripper,
+    _arm_effector = Cartesian6dVelocityEffector(robot_params, arm, gripper,
                                                 joint_velocity_effector,
                                                 tcp_sensor)
 
-  robot.standard_compose(arm, _gripper)
+  robot.standard_compose(arm, gripper)
   moma_robot = robot.StandardRobot(arm=arm,
                                    arm_base_site_name=arm.base_site.name,
-                                   gripper=_gripper,
+                                   gripper=gripper,
                                    robot_sensors=robot_sensors,
                                    arm_effector=_arm_effector,
                                    gripper_effector=gripper_effector)

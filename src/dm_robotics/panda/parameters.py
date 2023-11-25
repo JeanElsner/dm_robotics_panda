@@ -3,8 +3,18 @@ import dataclasses
 from typing import Optional, Sequence
 
 from dm_control import mjcf
+from dm_robotics.moma import effector, sensor
+from dm_robotics.moma.models.end_effectors.robot_hands import robot_hand
 
 from . import arm_constants
+
+
+@dataclasses.dataclass
+class GripperParams:
+  """Parameters describing a custom gripper."""
+  model: robot_hand.RobotHand
+  effector: effector.Effector
+  sensors: Optional[Sequence[sensor.Sensor]] = None
 
 
 @dataclasses.dataclass
@@ -33,6 +43,7 @@ class RobotParams:
   control_frame: Optional[mjcf.Element] = None
   actuation: arm_constants.Actuation = arm_constants.Actuation.CARTESIAN_VELOCITY
   has_hand: bool = True
+  gripper: Optional[GripperParams] = None
   robot_ip: Optional[str] = None
   joint_stiffness: Sequence[float] = (600, 600, 600, 600, 250, 150, 50)
   joint_damping: Sequence[float] = (50, 50, 50, 20, 20, 20, 10)
