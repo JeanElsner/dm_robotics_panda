@@ -3,7 +3,11 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 from dm_control import mjcf
-from dm_robotics.moma.sensors import joint_observations, wrench_observations
+from dm_robotics.moma.effectors import default_gripper_effector
+from dm_robotics.moma.models.end_effectors.robot_hands import robotiq_2f85
+from dm_robotics.moma.sensors import (joint_observations,
+                                      robotiq_gripper_sensor,
+                                      wrench_observations)
 
 from dm_robotics.panda import arm, hardware, parameters
 
@@ -63,3 +67,17 @@ def test_wrench_sensor(mock_hardware):
       wrench_observations.Observations.FORCE)](physics)
   sensor.observables[sensor.get_obs_key(
       wrench_observations.Observations.TORQUE)](physics)
+
+
+def test_custom_gripper():
+  with patch('panda_py.Panda') as mock_panda:
+    gripper = robotiq_2f85.Robotiq2F85()
+    gripper_params = parameters.GripperParams(
+        model=gripper,
+        effector=default_gripper_effector.DefaultGripperEffector(
+            gripper, 'robotique'),
+        sensors=[
+            robotiq_gripper_sensor.RobotiqGripperSensor(gripper, 'robotique')
+        ])
+    hardware.build_robot(
+        parameters.RobotParams(gripper=gripper_params, has_hand=False))

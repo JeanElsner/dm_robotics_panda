@@ -52,4 +52,5 @@ def test_custom_gripper():
       sensors=[
           robotiq_gripper_sensor.RobotiqGripperSensor(gripper, 'robotique')
       ])
-  arm.build_robot(parameters.RobotParams(gripper=gripper_params))
+  arm.build_robot(parameters.RobotParams(gripper=gripper_params,
+                                         has_hand=False))
