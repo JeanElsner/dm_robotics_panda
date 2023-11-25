@@ -64,24 +64,6 @@ class Formatter(logging.Formatter):
     return msg
 
 
-class DuplicateFilter(logging.Filter):
-  """Filters duplicate for a given dead time."""
-
-  def __init__(self, dead_time: float = 5.0) -> None:
-    self._dead_time = dead_time
-
-  def filter(self, record: logging.LogRecord):
-    # add other fields if you need more granular comparison, depends on your app
-    current_log = (record.module, record.levelno, record.msg)
-    if current_log != getattr(self, '_last_log',
-                              None) or record.created - getattr(
-                                  self, '_last_created', 0) > self._dead_time:
-      self._last_log = current_log
-      self._last_created = record.created
-      return True
-    return False
-
-
 def init_logging() -> None:
   """Set the standard log format and handler."""
   for h in logging.root.handlers[:]:
@@ -90,7 +72,6 @@ def init_logging() -> None:
   handler = logging.StreamHandler()
   handler.setFormatter(
       Formatter('[%(asctime)s][%(name)s] %(message)s', '%Y-%m-%d %H:%M:%S'))
-  handler.addFilter(DuplicateFilter())
   logging.root.setLevel(logging.INFO)
   logging.root.addHandler(handler)
   logging.captureWarnings(True)
