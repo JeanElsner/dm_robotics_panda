@@ -53,7 +53,6 @@ if __name__ == '__main__':
   right = params.RobotParams(attach_site=right_frame,
                              name='right',
                              control_frame=control_frame)
-  env_params = params.EnvirontmentParameters(mjcf_root=arena)
   panda_env = environment.PandaEnvironment([left, right], arena)
 
   with panda_env.build_task_environment() as env:
