@@ -311,6 +311,33 @@ body to rotate it, while the motion remains invariant.
 
 .. youtube:: cAUjkhrBmN4
 
+Custom Gripper
+--------------
+
+You can use the Panda model with any gripper that implements the ``dm_robotics`` gripper interface.
+The example implemented in ``examples/custom_gripper.py`` uses a model of the `Robotiq 2-finger 85`
+gripper, sensor and effector to attach to a Panda robot. This is again done using the robot configuration.
+
+.. code:: python
+
+   gripper = robotiq_2f85.Robotiq2F85()
+   gripper_params = params.GripperParams(
+       model=gripper,
+       effector=default_gripper_effector.DefaultGripperEffector(
+           gripper, 'robotique'),
+       sensors=[
+           robotiq_gripper_sensor.RobotiqGripperSensor(gripper, 'robotique')
+       ])
+   robot_params = params.RobotParams(gripper=gripper_params, has_hand=False)
+
+Gripper parameters above include model, sensors and an effector that are part of the robot configuration.
+You also need to set ``has_hand`` to `False`, otherwise the Panda gripper will be used. The Robotiq gripper
+can be controlled continuously and the example uses a simple agent to apply a sinusoidal action to control
+the gripper. The resulting model is pictured below.
+
+.. image:: img/custom_gripper.png
+   :alt: Custom Gripper
+
 RL Environment
 --------------
 

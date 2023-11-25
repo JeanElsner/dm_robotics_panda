@@ -234,6 +234,11 @@ def build_robot(robot_params: params.RobotParams) -> robot.Robot:
     robot_sensors.append(panda_hand_sensor)
     gripper_effector = PandaHandEffector(robot_params, gripper,
                                          panda_hand_sensor, hardware_gripper)
+  elif robot_params.gripper is not None:
+    gripper = robot_params.gripper.model
+    if robot_params.gripper.sensors is not None:
+      robot_sensors.extend(robot_params.gripper.sensors)
+    gripper_effector = robot_params.gripper.effector
   else:
     gripper = gripper_module.DummyHand(name=ns_gripper)
     gripper_effector = None

@@ -1,5 +1,6 @@
 import numpy as np
 from dm_control import mjcf
+from dm_control.composer.variation import distributions, rotations
 from dm_env import specs
 from dm_robotics.agentflow.preprocessors import rewards
 from dm_robotics.moma import effector, entity_initializer, prop
@@ -58,7 +59,8 @@ def test_components():
   panda_env.add_props(props)
 
   entity_initializers = [
-      entity_initializer.PropPlacer(props, [0, 0, 0], [1, 0, 0, 0])
+      entity_initializer.prop_initializer.PropPlacer(
+          props, distributions.Uniform(-1, 1), rotations.UniformQuaternion())
   ]
   panda_env.add_extra_effectors(extra_effectors)
   panda_env.add_extra_sensors(extra_sensors)
@@ -66,5 +68,5 @@ def test_components():
   panda_env.add_scene_initializers([initialize_scene])
   panda_env.add_timestep_preprocessors(preprocessors)
 
-  with panda_env.build_task_environment():
+  with panda_env.build_task_environment() as env:
     pass
