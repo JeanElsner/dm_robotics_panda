@@ -32,8 +32,6 @@ class PandaEnvironment:
     self._robot_params = robot_params if isinstance(
         robot_params, Sequence) else [robot_params]
     self._control_timestep = control_timestep
-
-    self._arena.mjcf_model.compiler.angle = 'degree'
     self._arena.mjcf_model.option.timestep = physics_timestep
 
     self._robots = collections.OrderedDict()

@@ -74,7 +74,7 @@ if __name__ == '__main__':
   panda_env.robots[robot_params.name].gripper.tool_center_point.parent.add(
       'camera',
       pos=(.1, 0, -.1),
-      euler=(180, 0, -90),
+      euler=(np.pi, 0, -np.pi / 2),
       fovy=90,
       name='wrist_camera')
 
