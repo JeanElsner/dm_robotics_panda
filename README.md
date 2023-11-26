@@ -9,7 +9,7 @@
   <a href="https://pypi.org/project/dm-robotics-panda/"><img alt="PyPI - Published Version" src="https://img.shields.io/pypi/v/dm-robotics-panda"></a>
   <a href="https://codecov.io/gh/JeanElsner/dm_robotics_panda"><img src="https://codecov.io/gh/JeanElsner/dm_robotics_panda/graph/badge.svg?token=7mk9f5yM8y"/></a>
   <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/dm-robotics-panda">
-  <a href="https://jeanelsner.github.io/dm_robotics_panda"><img alt="Documentation" src="https://shields.io/badge/-Documentation-informational" /><a/>
+  <a href="https://jeanelsner.github.io/dm_robotics_panda"><img alt="Documentation" src="https://shields.io/badge/-Documentation-informational" /></a>
 </p>
 
 This package includes a model of the Panda robot for [dm_robotics](https://github.com/google-deepmind/dm_robotics), tools to build simulation environments suited for reinforcement learning, and allows you to run these simulations with real hardware in the loop. 
