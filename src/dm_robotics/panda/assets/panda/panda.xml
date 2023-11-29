@@ -9,8 +9,6 @@
     <mesh name="link5" file="link5.obj" />
     <mesh name="link6" file="link6.obj" />
     <mesh name="link7" file="link7.obj" />
-    <mesh name="hand" file="hand.obj" />
-    <mesh name="finger" file="finger.obj" />
     <texture name="panda" file="panda.png" type="2d" />
     <material name="panda" texture="panda" shininess=".4" specular=".4" />
     <material name="panda_white" rgba="1 1 1 1" shininess="0.4" specular="0.4" />
