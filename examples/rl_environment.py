@@ -92,10 +92,7 @@ if __name__ == '__main__':
 
   # ComputeReward is a timestep preprocessor that accepts a callable which computes
   # a scalar reward based on the observation and adds it to the timestep.
-  # We configure the validation frequency so this reward is computed for every timestep.
-  reward = rewards.ComputeReward(
-      goal_reward,
-      validation_frequency=timestep_preprocessor.ValidationFrequency.ALWAYS)
+  reward = rewards.ComputeReward(goal_reward)
 
   # Instantiate props
   ball = Ball()

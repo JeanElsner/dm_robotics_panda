@@ -450,17 +450,14 @@ predefined timestep preprocessors to add a reward.
                                     observation['panda_tcp_pos'])
      return np.clip(1.0 - goal_distance, 0, 1)
 
-   reward = rewards.ComputeReward(
-       goal_reward,
-       validation_frequency=timestep_preprocessor.ValidationFrequency.ALWAYS)
+   reward = rewards.ComputeReward(goal_reward)
 
    panda_env.add_timestep_preprocessors([reward])
 
 ``ComputeReward`` is a timestep preprocessor that computes a reward based on a callable that takes
 an observation and returns a scalar which is added to the timestep. The callable ``goal_reward``
 computes a reward based on the distance between the robot's end-effector and the ball's pose
-observation which we added above. This reward is computed for every timestep. Alternatively rewards
-may also be computed only at the end of an epiode.
+observation which we added above.
 
 
 Domain Randomization
