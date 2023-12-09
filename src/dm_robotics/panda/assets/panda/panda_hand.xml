@@ -13,7 +13,7 @@
     <body name="panda_hand" quat="1 0 0 0" gravcomp="1">
       <site name="TCP" pos="0 0 .1034" />
       <inertial pos="-1e-02 0 3e-02" mass="7.3e-01" diaginertia="1e-03 2.5e-03 1.7e-03" />
-      <geom type="mesh" material="panda" mesh="hand" />
+      <geom name="hand" type="mesh" material="panda" mesh="hand" />
       <body name="panda_leftfinger" pos="0 0 0.0584" quat="0 0 0 1" gravcomp="1">
         <inertial pos="0 0 0" mass="1.5e-02" diaginertia="2.3749e-06 2.3749e-06 7.5e-07"/>
         <joint name="panda_finger_joint1" pos="0 0 0" axis="0 1 0" type="slide" limited="true" range="0 0.04" armature="0.1" damping="11" solreflimit="-30000 -200" />
@@ -35,6 +35,6 @@
     </fixed>
   </tendon>
   <actuator>
-    <general biastype="affine" name="panda_hand_actuator" tendon="split" forcelimited="true" forcerange="-100 100" ctrllimited="true" ctrlrange="0 1" gainprm="240 0 0" biasprm="0 -6000 -10"/>
+    <general biastype="affine" name="panda_hand_actuator" tendon="split" forcelimited="true" forcerange="-100 100" ctrllimited="true" ctrlrange="0 1" gainprm="24 0 0" biasprm="0 -600 -50"/>
   </actuator>
 </mujoco>
