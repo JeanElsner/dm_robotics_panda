@@ -88,6 +88,7 @@ class PandaEnvironment:
 
     env_builder.set_action_space(full_action_space)
     env = env_builder.build()
+    env._env._raise_exception_on_physics_error = False
 
     return env
 
