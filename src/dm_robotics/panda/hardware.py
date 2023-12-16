@@ -210,7 +210,8 @@ class PandaHandEffector(gripper_module.PandaHandEffector):
     self._command = 0 if command[0] < 0.5 else 0.08
 
 
-def build_robot(robot_params: params.RobotParams) -> robot.Robot:
+def build_robot(robot_params: params.RobotParams,
+                control_timestep: float = 0.1) -> robot.Robot:
   """Builds a MoMa robot model of the Panda with hardware in the loop."""
   hardware_panda = panda_py.Panda(robot_params.robot_ip)
   hardware_panda.set_default_behavior()
@@ -256,7 +257,8 @@ def build_robot(robot_params: params.RobotParams) -> robot.Robot:
   elif robot_params.actuation == arm_constants.Actuation.CARTESIAN_VELOCITY:
     joint_velocity_effector = ArmEffector(robot_params, panda, hardware_panda)
     _arm_effector = arm_module.Cartesian6dVelocityEffector(
-        robot_params, panda, gripper, joint_velocity_effector, tcp_sensor)
+        robot_params, panda, gripper, joint_velocity_effector, tcp_sensor,
+        control_timestep)
 
   robot.standard_compose(panda, gripper)
   moma_robot = robot.StandardRobot(arm=panda,

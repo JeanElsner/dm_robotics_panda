@@ -37,9 +37,11 @@ class PandaEnvironment:
     self._robots = collections.OrderedDict()
     for robot_params in self._robot_params:
       if robot_params.robot_ip is not None:
-        robot = hardware.build_robot(robot_params)
+        robot = hardware.build_robot(robot_params,
+                                     control_timestep=self._control_timestep)
       else:
-        robot = arm.build_robot(robot_params)
+        robot = arm.build_robot(robot_params,
+                                control_timestep=self._control_timestep)
       self._robots[robot_params.name] = robot
     for robot, robot_params in zip(self._robots.values(), self._robot_params):
       self._arena.attach(robot.arm, robot_params.attach_site)

@@ -328,10 +328,13 @@ class Cartesian6dVelocityEffector(
     cartesian_6d_velocity_effector.Cartesian6dVelocityEffector):
   """Panda Version of the MoMa Cartesian6dVelocityEffector."""
 
-  def __init__(self, robot_params: params.RobotParams, arm: robot_arm.RobotArm,
+  def __init__(self,
+               robot_params: params.RobotParams,
+               arm: robot_arm.RobotArm,
                gripper: robot_hand.RobotHand,
                joint_velocity_effector: effector.Effector,
-               tcp_sensor: robot_tcp_sensor.RobotTCPSensor):
+               tcp_sensor: robot_tcp_sensor.RobotTCPSensor,
+               control_timestep: float = 0.1):
     self._frame = robot_params.control_frame
     self._arm = arm
     self._get_world_pos = tcp_sensor.observables[tcp_sensor.get_obs_key(
@@ -339,7 +342,7 @@ class Cartesian6dVelocityEffector(
     model_params = cartesian_6d_velocity_effector.ModelParams(
         gripper.tool_center_point, arm.joints)
     control_params = cartesian_6d_velocity_effector.ControlParams(
-        0.1,
+        control_timestep,
         joint_position_limit_velocity_scale=.95,
         minimum_distance_from_joint_position_limit=.01,
         joint_velocity_limits=np.array(consts.VELOCITY_LIMITS['max']))
@@ -483,7 +486,8 @@ class RobotArmSensor(robot_arm_sensor.RobotArmSensor):
             self._arm.joints).qfrc_passive  # pytype: disable=attribute-error
 
 
-def build_robot(robot_params: params.RobotParams) -> robot.Robot:
+def build_robot(robot_params: params.RobotParams,
+                control_timestep: float = 0.1) -> robot.Robot:
   """Builds a MoMa robot model of the Panda."""
   robot_sensors = []
   arm = Panda(actuation=robot_params.actuation, name=robot_params.name)
@@ -520,7 +524,7 @@ def build_robot(robot_params: params.RobotParams) -> robot.Robot:
     joint_velocity_effector = ArmEffector(robot_params, arm)
     _arm_effector = Cartesian6dVelocityEffector(robot_params, arm, gripper,
                                                 joint_velocity_effector,
-                                                tcp_sensor)
+                                                tcp_sensor, control_timestep)
 
   robot.standard_compose(arm, gripper)
   moma_robot = robot.StandardRobot(arm=arm,
