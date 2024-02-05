@@ -17,8 +17,9 @@ from dm_robotics.moma.models import types
 from dm_robotics.moma.models import utils as models_utils
 from dm_robotics.moma.models.end_effectors.robot_hands import robot_hand
 from dm_robotics.moma.models.robots.robot_arms import robot_arm
-from dm_robotics.moma.sensors import (robot_arm_sensor, robot_tcp_sensor,
-                                      site_sensor, wrench_observations)
+from dm_robotics.moma.sensors import (action_sensor, robot_arm_sensor,
+                                      robot_tcp_sensor, site_sensor,
+                                      wrench_observations)
 from dm_robotics.transformations import transformations as tr
 
 from . import arm_constants as consts
@@ -373,10 +374,6 @@ class ArmEffector(arm_effector.ArmEffector):
     """
     super().__init__(arm, None, robot_params.name)
     self._robot_params = robot_params
-    self._empty_spec = specs.BoundedArray(shape=(0,),
-                                          dtype=np.float32,
-                                          minimum=0,
-                                          maximum=0)
 
   def after_compile(self, mjcf_model: mjcf.RootElement,
                     physics: mjcf.Physics) -> None:
@@ -393,11 +390,6 @@ class ArmEffector(arm_effector.ArmEffector):
     if self._robot_params.actuation == consts.Actuation.HAPTIC:
       return
     super().set_control(physics, command)
-
-  def action_spec(self, physics: mjcf.Physics) -> specs.BoundedArray:
-    if self._robot_params.actuation == consts.Actuation.HAPTIC:
-      return self._empty_spec
-    return super().action_spec(physics)
 
 
 @enum.unique
@@ -519,12 +511,19 @@ def build_robot(robot_params: params.RobotParams,
   if robot_params.actuation in [
       consts.Actuation.JOINT_VELOCITY, consts.Actuation.HAPTIC
   ]:
-    _arm_effector = ArmEffector(robot_params, arm)
+    joint_effector = ArmEffector(robot_params, arm)
+    _arm_effector, spy_sensor = action_sensor.create_sensed_effector(
+        joint_effector)
+    robot_sensors.append(spy_sensor)
   elif robot_params.actuation == consts.Actuation.CARTESIAN_VELOCITY:
     joint_velocity_effector = ArmEffector(robot_params, arm)
-    _arm_effector = Cartesian6dVelocityEffector(robot_params, arm, gripper,
+    cart_effector = Cartesian6dVelocityEffector(robot_params, arm, gripper,
                                                 joint_velocity_effector,
                                                 tcp_sensor, control_timestep)
+
+    _arm_effector, spy_sensor = action_sensor.create_sensed_effector(
+        cart_effector)
+    robot_sensors.append(spy_sensor)
 
   robot.standard_compose(arm, gripper)
   moma_robot = robot.StandardRobot(arm=arm,

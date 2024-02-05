@@ -10,7 +10,7 @@ from dm_robotics.geometry import geometry, mujoco_physics
 from dm_robotics.moma import robot
 from dm_robotics.moma.models.end_effectors.robot_hands import robot_hand
 from dm_robotics.moma.models.robots.robot_arms import robot_arm
-from dm_robotics.moma.sensors import robot_arm_sensor
+from dm_robotics.moma.sensors import action_sensor, robot_arm_sensor
 from panda_py import controllers, libfranka
 
 from . import arm as arm_module
@@ -253,12 +253,18 @@ def build_robot(robot_params: params.RobotParams,
   if robot_params.actuation in [
       arm_constants.Actuation.JOINT_VELOCITY, arm_constants.Actuation.HAPTIC
   ]:
-    _arm_effector = ArmEffector(robot_params, panda, hardware_panda)
+    joint_effector = ArmEffector(robot_params, panda, hardware_panda)
+    _arm_effector, spy_sensor = action_sensor.create_sensed_effector(
+        joint_effector)
+    robot_sensors.append(spy_sensor)
   elif robot_params.actuation == arm_constants.Actuation.CARTESIAN_VELOCITY:
     joint_velocity_effector = ArmEffector(robot_params, panda, hardware_panda)
-    _arm_effector = arm_module.Cartesian6dVelocityEffector(
+    cart_effector = arm_module.Cartesian6dVelocityEffector(
         robot_params, panda, gripper, joint_velocity_effector, tcp_sensor,
         control_timestep)
+    _arm_effector, spy_sensor = action_sensor.create_sensed_effector(
+        cart_effector)
+    robot_sensors.append(spy_sensor)
 
   robot.standard_compose(panda, gripper)
   moma_robot = robot.StandardRobot(arm=panda,
