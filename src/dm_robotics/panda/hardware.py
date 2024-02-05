@@ -62,8 +62,6 @@ class ArmEffector(arm_module.ArmEffector):
     if self.actuation == arm_constants.Actuation.HAPTIC:
       self.controller.set_control(
           physics.bind(self._arm.joints).qfrc_constraint * .1)
-      command = np.array(self.hardware.get_state().q, dtype=np.float32)
-      super().set_control(physics, command)
 
   def close(self):
     self.hardware.stop_controller()

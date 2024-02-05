@@ -56,8 +56,5 @@ ROTATION_QUATERNION_MINUS_45DEG_AROUND_Z = (0.92387953, 0, 0, -0.38268343)
 ACTUATION_LIMITS = {
     Actuation.CARTESIAN_VELOCITY: VELOCITY_LIMITS,
     Actuation.JOINT_VELOCITY: VELOCITY_LIMITS,
-    Actuation.HAPTIC: {
-        'min': (-1, -1, -1, -1, -1, -1, -1),
-        'max': (1, 1, 1, 1, 1, 1, 1),
-    },
+    Actuation.HAPTIC: JOINT_LIMITS,
 }

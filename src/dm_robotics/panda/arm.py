@@ -372,7 +372,10 @@ class ArmEffector(arm_effector.ArmEffector):
       robot_params: Dataclass containing robot parameters.
       arm: The MoMa arm to control.
     """
-    super().__init__(arm, None, robot_params.name)
+    override = None
+    if robot_params.actuation == consts.Actuation.HAPTIC:
+      override = [(0, 1), (0, 1), (0, 1), (0, 1), (0, 1), (0, 1), (0, 1)]
+    super().__init__(arm, override, robot_params.name)
     self._robot_params = robot_params
 
   def after_compile(self, mjcf_model: mjcf.RootElement,
