@@ -25,6 +25,7 @@ dependencies = [
   "dm-robotics-manipulation>=0.6.0",
   "dm-robotics-geometry>=0.6.0",
   "dm-robotics-transformations>=0.6.0",
+  "dm_env",
   "panda-python",
 ]
 license = {file = "LICENSE"}
