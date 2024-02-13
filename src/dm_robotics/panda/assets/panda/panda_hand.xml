@@ -11,6 +11,7 @@
   </equality>
   <worldbody>
     <body name="panda_hand" quat="1 0 0 0" gravcomp="1">
+      <site name="wrist_site" />
       <site name="TCP" pos="0 0 .1034" />
       <inertial pos="-1e-02 0 3e-02" mass="7.3e-01" diaginertia="1e-03 2.5e-03 1.7e-03" />
       <geom name="hand" type="mesh" material="panda" mesh="hand" />
