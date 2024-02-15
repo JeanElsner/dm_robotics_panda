@@ -1,4 +1,6 @@
 """Contains dataclasses holding parameter configurations."""
+from __future__ import annotations
+
 import dataclasses
 from typing import Optional, Sequence
 
