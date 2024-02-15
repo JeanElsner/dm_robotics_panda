@@ -211,13 +211,16 @@ class PandaHandEffector(gripper_module.PandaHandEffector):
 def build_robot(robot_params: params.RobotParams,
                 control_timestep: float = 0.1) -> robot.Robot:
   """Builds a MoMa robot model of the Panda with hardware in the loop."""
-  hardware_panda = panda_py.Panda(robot_params.robot_ip)
+  hardware_panda = panda_py.Panda(
+      robot_params.robot_ip,
+      realtime_config=libfranka.RealtimeConfig.kEnforce
+      if robot_params.enforce_realtime else libfranka.RealtimeConfig.kIgnore)
   hardware_panda.set_default_behavior()
   hardware_panda.get_robot().set_collision_behavior(
-      [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0],
-      [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0],
-      [100.0, 100.0, 100.0, 100.0, 100.0, 100.0],
-      [100.0, 100.0, 100.0, 100.0, 100.0, 100.0])
+      robot_params.collision_behavior.lower_torque_thresholds,
+      robot_params.collision_behavior.upper_torque_thresholds,
+      robot_params.collision_behavior.lower_force_thresholds,
+      robot_params.collision_behavior.upper_force_thresholds)
 
   robot_sensors = []
   panda = arm_module.Panda(actuation=robot_params.actuation,

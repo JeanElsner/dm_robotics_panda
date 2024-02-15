@@ -26,7 +26,7 @@ dependencies = [
   "dm-robotics-geometry>=0.6.0",
   "dm-robotics-transformations>=0.6.0",
   "dm_env",
-  "panda-python",
+  "panda-python>=0.7.4",
 ]
 license = {file = "LICENSE"}
 readme = "README.md"

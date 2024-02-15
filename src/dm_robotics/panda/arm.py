@@ -8,7 +8,6 @@ import mujoco
 import numpy as np
 from dm_control import mjcf
 from dm_control.composer.observation import observable
-from dm_env import specs
 from dm_robotics.geometry import geometry, mujoco_physics
 from dm_robotics.moma import effector, robot, sensor
 from dm_robotics.moma.effectors import (arm_effector,
@@ -359,7 +358,7 @@ class Cartesian6dVelocityEffector(
 
 class ArmEffector(arm_effector.ArmEffector):
   """Robot arm effector for the Panda MoMa model.
-  
+
   Takes :py:class:`dm_robotics.panda.parameters.RobotParams`
   and changes the joint stiffness and damping of the robot arm. Otherwise behaves
   like :py:class:`dm_robotics.moma.effectors.arm_effector.ArmEffector`.
@@ -467,7 +466,7 @@ class RobotTCPSensor(site_sensor.SiteSensor):
 
 class RobotArmSensor(robot_arm_sensor.RobotArmSensor):
   """Behaves like :py:class:`dm_robotics.moma.sensors.robot_arm_sensor.RobotArmSensor`.
-  
+
   Except that the joint torque signal does not include passive forces.
   This is done so as to model the external torque signal provided by the Panda robot.
   """
