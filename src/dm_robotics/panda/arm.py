@@ -8,7 +8,6 @@ import mujoco
 import numpy as np
 from dm_control import mjcf
 from dm_control.composer.observation import observable
-from dm_env import specs
 from dm_robotics.geometry import geometry, mujoco_physics
 from dm_robotics.moma import effector, robot, sensor
 from dm_robotics.moma.effectors import (arm_effector,
