@@ -18,6 +18,19 @@ class GripperParams:
 
 
 @dataclasses.dataclass
+class CollisionBehavior:
+  """Parameters to define the collision behavior of the real robot."""
+  lower_torque_thresholds: list[float] = [
+      50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0
+  ]
+  upper_torque_thresholds: list[float] = [
+      50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0
+  ]
+  lower_force_thresholds: list[float] = [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
+  upper_force_thresholds: list[float] = [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
+
+
+@dataclasses.dataclass
 class RobotParams:
   """Parameters used for building the Panda robot model.
 
@@ -35,6 +48,8 @@ class RobotParams:
     robot_ip: Robot IP or hostname. If `None` hardware in the loop is not used.
     joint_stiffness: Joint stiffness of the robot used in actuation.
     joint_damping: Joint damping of the robot used in actuation.
+    collision_behavior: configures the collision behavior of the real robot.
+    enforce_realtime: enforce realtime priority of real robot control threat
   """
   name: str = 'panda'
   pose: Optional[Sequence[float]] = None
@@ -47,3 +62,5 @@ class RobotParams:
   robot_ip: Optional[str] = None
   joint_stiffness: Sequence[float] = (600, 600, 600, 600, 250, 150, 50)
   joint_damping: Sequence[float] = (50, 50, 50, 20, 20, 20, 10)
+  collision_behavior: CollisionBehavior = CollisionBehavior()
+  enforce_realtime: bool = False
