@@ -20,14 +20,14 @@ class GripperParams:
 @dataclasses.dataclass
 class CollisionBehavior:
   """Parameters to define the collision behavior of the real robot."""
-  lower_torque_thresholds: list[float] = [
-      50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0
-  ]
-  upper_torque_thresholds: list[float] = [
-      50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0
-  ]
-  lower_force_thresholds: list[float] = [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
-  upper_force_thresholds: list[float] = [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
+  lower_torque_thresholds: list[float] = dataclasses.field(
+      default_factory=lambda: [50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0])
+  upper_torque_thresholds: list[float] = dataclasses.field(
+      default_factory=lambda: [50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0])
+  lower_force_thresholds: list[float] = dataclasses.field(
+      default_factory=lambda: [50.0, 50.0, 50.0, 50.0, 50.0, 50.0])
+  upper_force_thresholds: list[float] = dataclasses.field(
+      default_factory=lambda: [50.0, 50.0, 50.0, 50.0, 50.0, 50.0])
 
 
 @dataclasses.dataclass
