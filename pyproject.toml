@@ -14,7 +14,7 @@ include = [
 name = "dm-robotics-panda"
 description = "Panda model for dm_robotics."
 version = "0.4.7"
-requires-python = ">=3.8,<3.11"
+requires-python = ">=3.8,<3.13"
 authors = [
     { name = "Jean Elsner", email = "jean.elsner@tum.de" },
 ]
@@ -40,6 +40,8 @@ classifiers = [
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
 ]
 
 [project.optional-dependencies]
