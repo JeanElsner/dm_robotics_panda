@@ -64,5 +64,6 @@ class RobotParams:
   robot_ip: Optional[str] = None
   joint_stiffness: Sequence[float] = (600, 600, 600, 600, 250, 150, 50)
   joint_damping: Sequence[float] = (50, 50, 50, 20, 20, 20, 10)
-  collision_behavior: CollisionBehavior = CollisionBehavior()
+  collision_behavior: CollisionBehavior = dataclasses.field(
+      default_factory=lambda: CollisionBehavior())
   enforce_realtime: bool = False
