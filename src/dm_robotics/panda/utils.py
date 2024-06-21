@@ -259,7 +259,10 @@ class RewardPlot(Plot):
     self.maxlines = None
 
   def _init_buffer(self):
-    self.maxlines = self._rt._time_step.reward.shape[0]
+    if isinstance(self._rt._time_step.reward, np.ndarray):
+      self.maxlines = self._rt._time_step.reward.shape[0]
+    else:
+      self.maxlines = 1
     for _1 in range(self.maxlines):
       self.y.append(deque(maxlen=self.maxlen))
     self.reset_data()
@@ -269,12 +272,19 @@ class RewardPlot(Plot):
       return
     if self.maxlines is None:
       self._init_buffer()
-    for i, r in enumerate(self._rt._time_step.reward): 
-      self.fig.linepnt[i] = self.maxlen
-      self.y[i].append(r)
-      self.fig.linedata[i][:self.maxlen * 2] = np.array([self.x,
-                                                        self.y[i]]).T.reshape(
-                                                            (-1,))
+    if self.maxlines > 1:
+      for i, r in enumerate(self._rt._time_step.reward):
+        self.fig.linepnt[i] = self.maxlen
+        self.y[i].append(r)
+        self.fig.linedata[i][:self.maxlen * 2] = np.array([self.x, self.y[i]
+                                                          ]).T.reshape((-1,))
+    else:
+      r = self._rt._time_step.reward
+      self.fig.linepnt[0] = self.maxlen
+      self.y[0].append(r)
+      self.fig.linedata[0][:self.maxlen * 2] = np.array([self.x,
+                                                         self.y[0]]).T.reshape(
+                                                             (-1,))
     pos = mujoco.MjrRect(2 * 300 + 5, viewport.height - 200 - 5, 300, 200)
     mujoco.mjr_figure(pos, self.fig, context.ptr)
 
