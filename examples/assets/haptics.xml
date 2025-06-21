@@ -14,8 +14,23 @@
     <geom name='ground' type='plane' size='2 2 2' material='groundplane'
         friction='0.4'/>
     <light directional='true' diffuse='.7 .7 .7' pos='1 .1 2' dir='0 -.1 -2' specular='.3 .3 .3' castshadow='true'/>
-    <body pos="0.4 0 0.4" >
-      <geom type="box" size=".05 .05 .05"  rgba="1 0 0 1" />
+    <body pos="0.4 0. 0.37">
+      <geom type="box" size="0.1 0.1 0.005" rgba="1 0 0 1"/>
+      <geom pos="0 -0.075 0.01" type="box" size="0.1 0.025 0.005" rgba="0.5 0 0 1"/>
+      <geom pos="0 0 0.01" type="box" size="0.025 0.05 0.005" rgba="0.5 0 0 1"/>
+    </body>
+    <body pos="0.45 0 0.4" >
+      <geom type="box" size=".025 .025 .025"  rgba="1 0 0 1" />
+      <joint type="slide" axis="0 1 0" range="-0.075 0.075" />
+      <joint type="slide" axis="1 0 0" range="-0.125 0.025" />
+    </body>
+    <body pos="0.4 0.4 0.355">
+      <geom type="box" size="0.1 0.1 0.005" rgba="1 1 0 1"/>
+    </body>
+    <body pos="0.4 0.4 0.4">
+      <geom type="sphere" size="0.04" rgba="1 1 0 1" />
+      <joint type="slide" axis="0 1 0" range="-0.1 0.1" />
+      <joint type="slide" axis="1 0 0" range="-0.1 0.1" />
     </body>
   </worldbody>
 </mujoco>
