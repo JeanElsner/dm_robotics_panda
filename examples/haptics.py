@@ -9,6 +9,7 @@ import dm_env
 import numpy as np
 from dm_control import composer, mjcf
 from dm_env import specs
+from dm_control.viewer import user_input, application
 
 from dm_robotics.panda import arm_constants, environment
 from dm_robotics.panda import parameters as params
@@ -26,6 +27,31 @@ class Agent:
     del timestep  # not used
     action = np.zeros(shape=self._spec.shape, dtype=self._spec.dtype)
     return action
+
+
+class Obs(utils.ObservationPlot):
+  """Selects torque observation to render by default."""
+  def _init_buffer(self):
+    super()._init_buffer()
+    self._obs_idx = self._obs_keys.index('panda_torque')
+    self.reset_data()
+    self.update_title()
+
+
+class App(utils.ApplicationWithPlot):
+  """Sets default window size, camera and observation plot."""
+  def __init__(self):
+    super().__init__('Haptic Demo', 1920, 1080)
+
+  def _perform_deferred_reload(self, params):
+    application.Application._perform_deferred_reload(self, params)
+    cmp = Obs(self._runtime)
+    self._renderer.components += cmp
+    self._renderer.components += utils.ActionPlot(self._runtime)
+    self._renderer.components += utils.RewardPlot(self._runtime)
+    self._input_map.bind(cmp.next_obs, user_input.KEY_F4)
+    self._input_map.bind(cmp.prev_obs, user_input.KEY_F3)
+    self._viewer._camera_select.select_next()
 
 
 if __name__ == '__main__':
@@ -54,5 +80,5 @@ if __name__ == '__main__':
     # Initialize the agent.
     agent = Agent(env.action_spec())
     # Visualize the simulation to confirm physical interaction.
-    app = utils.ApplicationWithPlot()
+    app = App()
     app.launch(env, policy=agent.step)
